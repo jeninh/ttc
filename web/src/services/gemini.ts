@@ -85,17 +85,23 @@ function parseGeminiResponse(text: string): AffectedSegment[] {
 
 export async function analyzeAlerts(alerts: TTCAlert[], forceRefresh = false): Promise<AffectedSegment[]> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+  console.log('[Gemini] API key present:', !!apiKey)
   if (!apiKey) return []
 
   const subwayAlerts = alerts.filter((a) => a.routeType === 'subway')
+  console.log('[Gemini] Subway alerts found:', subwayAlerts.length, subwayAlerts.map((a) => a.title))
   if (subwayAlerts.length === 0) return []
 
   // Check cache first (skip if forced)
   if (!forceRefresh) {
     const cached = getCachedSegments()
-    if (cached) return cached
+    if (cached) {
+      console.log('[Gemini] Using cached segments:', cached.length)
+      return cached
+    }
   }
 
+  console.log('[Gemini] Calling Gemini API...')
   try {
     const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
       method: 'POST',
@@ -105,11 +111,17 @@ export async function analyzeAlerts(alerts: TTCAlert[], forceRefresh = false): P
       }),
     })
 
-    if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
+    if (!res.ok) {
+      const errBody = await res.text()
+      console.error('[Gemini] API error:', res.status, errBody)
+      throw new Error(`Gemini API error: ${res.status}`)
+    }
 
     const data = await res.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    console.log('[Gemini] Raw response:', text)
     const segments = parseGeminiResponse(text)
+    console.log('[Gemini] Parsed segments:', segments.length, segments)
 
     cacheSegments(segments)
     return segments
