@@ -928,6 +928,47 @@ html, body, #root {
   }
 }
 
+/* ── Map status legend ── */
+.map-legend {
+  position: absolute;
+  bottom: 220px;
+  left: 12px;
+  z-index: 1000;
+  background: var(--panel-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  font-size: 13px;
+}
+
+.map-legend-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.map-legend-item:last-child {
+  margin-bottom: 0;
+}
+
+.map-legend-swatch {
+  display: inline-block;
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+  border: none;
+}
+
 /* Mobile responsive */
 @media (max-width: 600px) {
   .nav-panel {

@@ -1,8 +1,9 @@
 import { MapContainer, TileLayer, Polyline, CircleMarker, Popup, Marker, useMap } from 'react-leaflet'
 import L from 'leaflet'
-import { stations, type Station } from '../data/stations'
-import { lines, getLineCoords } from '../data/lines'
+import { stations, stationMap, type Station } from '../data/stations'
+import { lines } from '../data/lines'
 import type { Route } from '../services/routing'
+import type { AffectedSegment, SegmentStatus } from '../services/gemini'
 import { useEffect, useRef } from 'react'
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
   destCoords: [number, number] | null
   userLocation: [number, number] | null
   onStationClick?: (station: Station, role: 'from' | 'to') => void
+  alertSegments?: AffectedSegment[]
 }
 
 function MapController({ route, userLocation }: { route: Route | null; userLocation: [number, number] | null }) {
@@ -132,7 +134,103 @@ const userIcon = L.divIcon({
   iconAnchor: [10, 10],
 })
 
-export default function TTCMap({ route, originCoords, destCoords, userLocation, onStationClick }: Props) {
+const statusColor: Record<SegmentStatus, string> = {
+  closed: '#DA291C',
+  delayed: '#FFB300',
+  diversion: '#FF6D00',
+  normal: '',
+}
+
+const statusLabel: Record<SegmentStatus, string> = {
+  closed: '🚫 Closed',
+  delayed: '⚠️ Delayed',
+  diversion: '🔀 Diversion',
+  normal: '',
+}
+
+function getSegmentStatus(
+  lineId: string,
+  fromId: string,
+  toId: string,
+  alertSegments: AffectedSegment[],
+): AffectedSegment | undefined {
+  return alertSegments.find(
+    (s) =>
+      s.lineId === lineId &&
+      ((s.fromStationId === fromId && s.toStationId === toId) ||
+        (s.fromStationId === toId && s.toStationId === fromId)),
+  )
+}
+
+function buildLineSegments(
+  line: typeof lines[0],
+  alertSegments: AffectedSegment[],
+): { coords: [number, number][]; color: string; status: SegmentStatus; dashArray?: string; tooltip?: string }[] {
+  const result: { coords: [number, number][]; color: string; status: SegmentStatus; dashArray?: string; tooltip?: string }[] = []
+  let currentGroup: { coords: [number, number][]; color: string; status: SegmentStatus; dashArray?: string; tooltip?: string } | null = null
+
+  for (let i = 0; i < line.stationIds.length - 1; i++) {
+    const fromId = line.stationIds[i]
+    const toId = line.stationIds[i + 1]
+    const fromStation = stationMap.get(fromId)
+    const toStation = stationMap.get(toId)
+    if (!fromStation || !toStation) continue
+
+    const affected = getSegmentStatus(line.id, fromId, toId, alertSegments)
+    const status: SegmentStatus = affected?.status ?? 'normal'
+    const color = status === 'normal' ? line.color : statusColor[status]
+    const dashArray = status === 'diversion' ? '8 6' : undefined
+    const tooltip = affected ? `${statusLabel[status]}: ${affected.alertTitle}` : undefined
+
+    if (currentGroup && currentGroup.status === status && currentGroup.color === color) {
+      currentGroup.coords.push([toStation.lat, toStation.lng])
+      if (tooltip) currentGroup.tooltip = tooltip
+    } else {
+      currentGroup = {
+        coords: [[fromStation.lat, fromStation.lng], [toStation.lat, toStation.lng]],
+        color,
+        status,
+        dashArray,
+        tooltip,
+      }
+      result.push(currentGroup)
+    }
+  }
+
+  return result
+}
+
+function StatusLegend({ segments }: { segments: AffectedSegment[] }) {
+  if (segments.length === 0) return null
+
+  const hasStatus = (s: SegmentStatus) => segments.some((seg) => seg.status === s)
+  const items: { status: SegmentStatus; label: string; color: string }[] = []
+  if (hasStatus('closed')) items.push({ status: 'closed', label: 'Closed', color: statusColor.closed })
+  if (hasStatus('delayed')) items.push({ status: 'delayed', label: 'Delayed', color: statusColor.delayed })
+  if (hasStatus('diversion')) items.push({ status: 'diversion', label: 'Diversion', color: statusColor.diversion })
+
+  if (items.length === 0) return null
+
+  return (
+    <div className="map-legend">
+      <div className="map-legend-title">Service Status</div>
+      {items.map((item) => (
+        <div key={item.status} className="map-legend-item">
+          <span
+            className="map-legend-swatch"
+            style={{
+              background: item.color,
+              borderStyle: item.status === 'diversion' ? 'dashed' : 'solid',
+            }}
+          />
+          <span>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default function TTCMap({ route, originCoords, destCoords, userLocation, onStationClick, alertSegments = [] }: Props) {
   return (
     <MapContainer
       center={[43.6532, -79.3832]}
@@ -145,14 +243,21 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      {/* Draw subway lines */}
+      {/* Draw subway lines with alert coloring */}
       {lines.map((line) =>
-        getLineCoords(line).map((coords, i) => (
+        buildLineSegments(line, alertSegments).map((seg, i) => (
           <Polyline
-            key={`${line.id}-${i}`}
-            positions={coords}
-            pathOptions={{ color: line.color, weight: 5, opacity: 0.85 }}
-          />
+            key={`${line.id}-seg-${i}`}
+            positions={seg.coords}
+            pathOptions={{
+              color: seg.color,
+              weight: seg.status === 'normal' ? 5 : 7,
+              opacity: seg.status === 'normal' ? 0.85 : 1,
+              dashArray: seg.dashArray,
+            }}
+          >
+            {seg.tooltip && <Popup>{seg.tooltip}</Popup>}
+          </Polyline>
         )),
       )}
 
@@ -197,6 +302,9 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
       )}
 
       <MapController route={route} userLocation={userLocation} />
+
+      {/* Status legend */}
+      <StatusLegend segments={alertSegments} />
     </MapContainer>
   )
 }

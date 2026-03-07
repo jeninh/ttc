@@ -6,6 +6,7 @@ import AlertsPanel from './components/AlertsPanel'
 import NearbyPanel from './components/NearbyPanel'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { useAlerts } from './hooks/useAlerts'
+import { useGeminiAlerts } from './hooks/useGeminiAlerts'
 import { useLocation } from './hooks/useLocation'
 import { findRoute, type Route } from './services/routing'
 import type { GeoResult } from './services/geocoding'
@@ -15,6 +16,7 @@ import './App.css'
 export default function App() {
   const online = useOnlineStatus()
   const { alerts, loading: alertsLoading } = useAlerts()
+  const { segments: alertSegments } = useGeminiAlerts(alerts)
   const { location: userLocation, loading: locLoading } = useLocation()
 
   const [fromText, setFromText] = useState('')
@@ -119,6 +121,7 @@ export default function App() {
           destCoords={toCoords}
           userLocation={userLatLng}
           onStationClick={handleStationClick}
+          alertSegments={alertSegments}
         />
       </div>
 
