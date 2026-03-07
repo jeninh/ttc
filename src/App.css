@@ -730,72 +730,6 @@ html, body, #root {
   color: #fff;
 }
 
-/* ── Scrolling alerts marquee ── */
-.ticker-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: rgba(26, 26, 46, 0.95);
-  padding: 8px 0;
-  cursor: pointer;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
-}
-
-.ticker-container:hover {
-  box-shadow: 0 4px 20px rgba(218,41,28,0.4);
-}
-
-.ticker-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--ttc-red), #ff9800, var(--ttc-red));
-  background-size: 200% 100%;
-  width: 100%;
-  animation: ticker-glow-slide 4.5s linear infinite;
-}
-
-@keyframes ticker-glow-slide {
-  0% { background-position: 0% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.ticker-marquee-wrap {
-  overflow: hidden;
-  width: 100%;
-}
-
-.ticker-marquee {
-  display: inline-flex;
-  white-space: nowrap;
-  animation: ticker-scroll linear infinite;
-}
-
-.ticker-marquee-paused {
-  animation-play-state: paused;
-}
-
-@keyframes ticker-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.ticker-marquee-text {
-  font-size: 13px;
-  color: #fff;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-.ticker-marquee-spacer {
-  font-size: 13px;
-  color: rgba(255,255,255,0.3);
-}
-
 /* ── Alert detail popup ── */
 .alert-overlay {
   position: fixed;
@@ -815,13 +749,16 @@ html, body, #root {
 }
 
 .alert-popup {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
   background: #fff;
   border-radius: var(--radius);
   width: min(440px, 100%);
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-  animation: popup-in 0.25s ease;
+  z-index: 1000;
 }
 
 @keyframes popup-in {
