@@ -83,16 +83,18 @@ function parseGeminiResponse(text: string): AffectedSegment[] {
   return []
 }
 
-export async function analyzeAlerts(alerts: TTCAlert[]): Promise<AffectedSegment[]> {
+export async function analyzeAlerts(alerts: TTCAlert[], forceRefresh = false): Promise<AffectedSegment[]> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
   if (!apiKey) return []
 
   const subwayAlerts = alerts.filter((a) => a.routeType === 'subway')
   if (subwayAlerts.length === 0) return []
 
-  // Check cache first
-  const cached = getCachedSegments()
-  if (cached) return cached
+  // Check cache first (skip if forced)
+  if (!forceRefresh) {
+    const cached = getCachedSegments()
+    if (cached) return cached
+  }
 
   try {
     const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
