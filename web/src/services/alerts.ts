@@ -68,6 +68,28 @@ export async function fetchAlerts(): Promise<TTCAlert[]> {
       }
     }
 
+    // siteWideCustom contains subway closures/service alerts
+    if (data.siteWideCustom && Array.isArray(data.siteWideCustom)) {
+      for (const a of data.siteWideCustom) {
+        alerts.push({
+          id: a.id ?? `sw-${Math.random()}`,
+          title: a.customHeaderText || a.headerText || a.title || 'Service Alert',
+          description: a.description || '',
+          routeType: (a.routeType || 'unknown').toLowerCase(),
+          route: a.route || '',
+          severity: a.severity || '',
+          effect: a.effectDesc || a.effect || '',
+          cause: a.causeDescription || a.cause || '',
+          lastUpdated: a.lastUpdated || new Date().toISOString(),
+          stopStart: a.stopStart || '',
+          stopEnd: a.stopEnd || '',
+          direction: a.direction || '',
+          alertType: a.alertType || '',
+          isActive: true,
+        })
+      }
+    }
+
     if (data.accessibility && Array.isArray(data.accessibility)) {
       for (const a of data.accessibility) {
         alerts.push({
