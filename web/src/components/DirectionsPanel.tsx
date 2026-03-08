@@ -28,7 +28,14 @@ export default function DirectionsPanel({ route, onClose }: Props) {
         return `${i + 1}. Walk to ${step.to.name} (${step.durationMin} min)`;
       }
       if (step.type === 'ride') return `${i + 1}. Ride ${step.lineName} from ${step.from.name} to ${step.to.name} (${step.durationMin} min, ${step.stations?.length ?? 0} stops)`;
-      if (step.type === 'transfer') return `${i + 1}. Transfer at ${step.from.name} (${step.durationMin} min)`;
+      if (step.type === 'transfer') {
+        const prevRide = route.steps[i - 1]?.lineName;
+        const nextRide = route.steps[i + 1]?.lineName;
+        if (prevRide && nextRide) {
+          return `${i + 1}. Transfer from ${prevRide} to ${nextRide} at ${step.from.name} (${step.durationMin} min)`;
+        }
+        return `${i + 1}. Transfer at ${step.from.name} (${step.durationMin} min)`;
+      }
       return '';
     }).join('\n')
 
@@ -186,10 +193,17 @@ export default function DirectionsPanel({ route, onClose }: Props) {
                 </>
               )}
               {step.type === 'transfer' && (
-                <span>
-                  Transfer at <strong>{step.from.name}</strong>{' '}
-                  <span className="step-time">{step.durationMin} min</span>
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span>
+                    Transfer at <strong>{step.from.name}</strong>{' '}
+                    <span className="step-time">{step.durationMin} min</span>
+                  </span>
+                  {route.steps[i - 1]?.lineName && route.steps[i + 1]?.lineName && (
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      From <strong>{route.steps[i - 1].lineName}</strong> to <strong>{route.steps[i + 1].lineName}</strong>
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </li>
