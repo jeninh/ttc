@@ -259,8 +259,8 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
             positions={pathCoords}
             pathOptions={{
               color: '#DA291C', // Official TTC Red
-              weight: 3,
-              opacity: 0.65,
+              weight: route ? 2 : 3,
+              opacity: route ? 0.2 : 0.65,
             }}
           >
             <Popup>{scRoute.title}</Popup>
@@ -276,8 +276,8 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
             positions={seg.coords}
             pathOptions={{
               color: seg.color,
-              weight: seg.status === 'normal' ? 5 : 7,
-              opacity: seg.status === 'normal' ? 0.85 : 1,
+              weight: seg.status === 'normal' ? (route ? 3 : 5) : 7,
+              opacity: seg.status === 'normal' ? (route ? 0.25 : 0.85) : 1,
               dashArray: seg.dashArray,
             }}
           >
@@ -303,7 +303,11 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
               <Polyline
                 key={`route-ride-${i}`}
                 positions={step.stations.map((s) => [s.lat, s.lng] as [number, number])}
-                pathOptions={{ color: step.lineColor ?? '#DA291C', weight: 8, opacity: 1 }}
+                pathOptions={{ 
+                  color: step.lineColor ?? '#DA291C', 
+                  weight: 12, // BOLDER as requested
+                  opacity: 1 
+                }}
               />
             )
           }
