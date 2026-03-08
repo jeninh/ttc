@@ -13,7 +13,7 @@ export interface AffectedSegment {
 
 import polyline from '@mapbox/polyline'
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 const CACHE_KEY = 'ttc-gemini-segments'
 const CACHE_TIME_KEY = 'ttc-gemini-time'
 const CACHE_TTL = 3_600_000 // 1 hour

@@ -19,11 +19,6 @@ export interface TTCAlert {
 const ALERTS_URL_DIRECT = 'https://alerts.ttc.ca/api/alerts/live-alerts'
 const ALERTS_URL_PROXY = '/api/ttc-alerts'
 
-function getAlertsUrl(): string {
-  if (import.meta.env.DEV) return ALERTS_URL_PROXY
-  return ALERTS_URL_DIRECT
-}
-
 let cachedAlerts: TTCAlert[] = []
 let lastFetch = 0
 
@@ -34,11 +29,11 @@ export async function fetchAlerts(): Promise<TTCAlert[]> {
 
   try {
     let res: Response
-    try {
-      res = await fetch(getAlertsUrl())
+    if (import.meta.env.DEV) {
+      res = await fetch(ALERTS_URL_PROXY)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    } catch {
-      // Fallback: use CORS proxy
+    } else {
+      // In production, alerts.ttc.ca doesn't send CORS headers, so use proxy
       const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(ALERTS_URL_DIRECT)}`
       res = await fetch(proxyUrl)
       if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`)
