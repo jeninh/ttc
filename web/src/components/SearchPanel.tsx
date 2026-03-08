@@ -85,7 +85,7 @@ export default function SearchPanel({ label, placeholder, onSelect, value, onCha
         const geoResults = await geocode(text)
         const addressResults: SearchResult[] = geoResults.map((r) => ({
           geo: r,
-          label: r.displayName.split(',').slice(0, 3).join(',').trim(),
+          label: r.displayName,
           isStation: false,
         }))
         // Stations first, then addresses (deduplicated)
@@ -99,7 +99,7 @@ export default function SearchPanel({ label, placeholder, onSelect, value, onCha
       } finally {
         setLoading(false)
       }
-    }, 750)
+    }, 350)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
