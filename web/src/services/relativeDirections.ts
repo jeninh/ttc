@@ -108,20 +108,16 @@ Return ONLY the directions text, no JSON, no markdown code fences.`
 }
 
 export async function getRelativeDirections(route: Route): Promise<string> {
-  const geminiKey = import.meta.env.VITE_GEMINI_API_KEY
-  const mapsKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY
 
-  if (!geminiKey) return 'Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.'
+  if (!apiKey) return 'Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.'
 
-  // Fetch landmarks if Google Maps key is available, otherwise proceed without
-  let landmarks: NearbyLandmark[] = []
-  if (mapsKey) {
-    landmarks = await fetchLandmarksAlongRoute(route, mapsKey)
-  }
+  // Fetch landmarks using the same API key (enable Places API on the same GCP project)
+  const landmarks = await fetchLandmarksAlongRoute(route, apiKey)
 
   const prompt = buildPrompt(route, landmarks)
 
-  const res = await fetch(`${GEMINI_URL}?key=${geminiKey}`, {
+  const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
