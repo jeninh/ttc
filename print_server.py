@@ -24,6 +24,7 @@ import sys
 import time
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from bleak import BleakClient
 from bleak.exc import BleakError
 from PIL import Image, ImageDraw, ImageFont
@@ -582,14 +583,7 @@ def stack_images(images):
 
 # --- Flask App ---
 app = Flask(__name__)
-
-@app.after_request
-def after_request(response):
-    # Allow any origin to make requests
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
+CORS(app)
 
 
 @app.route('/print', methods=['POST', 'OPTIONS'])
