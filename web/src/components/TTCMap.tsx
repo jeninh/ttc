@@ -4,7 +4,8 @@ import { stations, stationMap, type Station } from '../data/stations'
 import { lines } from '../data/lines'
 import type { Route } from '../services/routing'
 import type { AffectedSegment, SegmentStatus } from '../services/gemini'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { fetchStreetcarRoutes, type StreetcarPath } from '../services/streetcars'
 
 interface Props {
   route: Route | null
@@ -31,6 +32,7 @@ function MapController({ route, userLocation }: { route: Route | null; userLocat
   useEffect(() => {
     if (!route) return
     const allCoords: [number, number][] = route.steps.flatMap((s) => {
+      if (s.type === 'walk' && s.path && s.path.length > 0) return s.path
       const pts: [number, number][] = [[s.from.lat, s.from.lng], [s.to.lat, s.to.lng]]
       if (s.stations) pts.push(...s.stations.map((st) => [st.lat, st.lng] as [number, number]))
       return pts
@@ -231,6 +233,12 @@ function StatusLegend({ segments }: { segments: AffectedSegment[] }) {
 }
 
 export default function TTCMap({ route, originCoords, destCoords, userLocation, onStationClick, alertSegments = [] }: Props) {
+  const [streetcarRoutes, setStreetcarRoutes] = useState<StreetcarPath[]>([])
+
+  useEffect(() => {
+    fetchStreetcarRoutes().then(setStreetcarRoutes)
+  }, [])
+
   return (
     <MapContainer
       center={[43.6532, -79.3832]}
@@ -242,6 +250,23 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+
+      {/* Draw static streetcar routes as a background layer */}
+      {streetcarRoutes.map((scRoute) =>
+        scRoute.paths.map((pathCoords, i) => (
+          <Polyline
+            key={`sc-${scRoute.routeId}-${i}`}
+            positions={pathCoords}
+            pathOptions={{
+              color: '#DA291C', // Official TTC Red
+              weight: 3,
+              opacity: 0.65,
+            }}
+          >
+            <Popup>{scRoute.title}</Popup>
+          </Polyline>
+        ))
+      )}
 
       {/* Draw subway lines with alert coloring */}
       {lines.map((line) =>
@@ -272,15 +297,31 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
 
       {/* Route overlay */}
       {route &&
-        route.steps
-          .filter((s) => s.type === 'ride' && s.stations)
-          .map((step, i) => (
-            <Polyline
-              key={`route-${i}`}
-              positions={step.stations!.map((s) => [s.lat, s.lng] as [number, number])}
-              pathOptions={{ color: step.lineColor ?? '#DA291C', weight: 8, opacity: 1 }}
-            />
-          ))}
+        route.steps.map((step, i) => {
+          if (step.type === 'ride' && step.stations) {
+            return (
+              <Polyline
+                key={`route-ride-${i}`}
+                positions={step.stations.map((s) => [s.lat, s.lng] as [number, number])}
+                pathOptions={{ color: step.lineColor ?? '#DA291C', weight: 8, opacity: 1 }}
+              />
+            )
+          }
+          if (step.type === 'walk') {
+            const walkPositions = step.path && step.path.length > 0 
+              ? step.path 
+              : [[step.from.lat, step.from.lng], [step.to.lat, step.to.lng]] as [number, number][];
+              
+            return (
+              <Polyline
+                key={`route-walk-${i}`}
+                positions={walkPositions}
+                pathOptions={{ color: '#2196F3', weight: 6, opacity: 0.9, dashArray: '6, 8' }}
+              />
+            )
+          }
+          return null
+        })}
 
       {/* Origin & destination markers */}
       {originCoords && (

@@ -14,7 +14,9 @@
   padding: 0;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -60,8 +62,8 @@ html, body, #root {
 }
 
 .restore-btn {
-  background: rgba(255,255,255,0.25);
-  border: 1px solid rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   color: #fff;
   padding: 4px 12px;
   border-radius: 6px;
@@ -78,7 +80,7 @@ html, body, #root {
   z-index: 1000;
   background: var(--panel-bg);
   border-radius: var(--radius) var(--radius) 0 0;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease;
   max-height: 70vh;
   overflow-y: auto;
@@ -172,7 +174,9 @@ html, body, #root {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .search-dropdown {
@@ -187,7 +191,7 @@ html, body, #root {
   max-height: 180px;
   overflow-y: auto;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .search-dropdown li {
@@ -433,10 +437,10 @@ html, body, #root {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1000;
-  background: rgba(255,255,255,0.95);
+  background: rgba(255, 255, 255, 0.95);
   padding: 16px 28px;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   font-size: 14px;
   font-weight: 600;
   display: flex;
@@ -468,13 +472,20 @@ html, body, #root {
   flex-direction: column;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
   animation: nearby-sb-in 0.35s ease;
 }
 
 @keyframes nearby-sb-in {
-  from { opacity: 0; transform: translateX(-20px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .nearby-sb-header {
@@ -482,7 +493,7 @@ html, body, #root {
   align-items: center;
   justify-content: space-between;
   padding: 18px 18px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .nearby-sb-title {
@@ -494,8 +505,8 @@ html, body, #root {
 .nearby-sb-loc-tag {
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.08);
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
   padding: 3px 10px;
   border-radius: 10px;
 }
@@ -503,36 +514,36 @@ html, body, #root {
 /* Your location section */
 .nearby-sb-location {
   padding: 14px 18px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .nearby-sb-loc-label {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .nearby-sb-loc-coords {
   font-size: 13px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-variant-numeric: tabular-nums;
 }
 
 /* Closest station highlight */
 .nearby-sb-closest {
   padding: 16px 18px;
-  background: linear-gradient(135deg, rgba(66,133,244,0.15), rgba(0,168,89,0.1));
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.15), rgba(0, 168, 89, 0.1));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .nearby-sb-closest-label {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   font-weight: 600;
   margin-bottom: 6px;
 }
@@ -548,7 +559,7 @@ html, body, #root {
   display: flex;
   gap: 12px;
   font-size: 13px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 10px;
 }
 
@@ -590,7 +601,7 @@ html, body, #root {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   font-weight: 600;
 }
 
@@ -603,14 +614,14 @@ html, body, #root {
 }
 
 .nearby-sb-card {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   padding: 12px 14px;
   transition: background 0.15s;
 }
 
 .nearby-sb-card:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .nearby-sb-card-top {
@@ -651,13 +662,13 @@ html, body, #root {
 .nearby-sb-card-dist {
   display: block;
   font-size: 11px;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   margin-top: 2px;
 }
 
 /* Departure board */
 .nearby-sb-deps {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   padding: 8px 10px;
   margin-bottom: 8px;
@@ -668,7 +679,7 @@ html, body, #root {
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255, 255, 255, 0.35);
   font-weight: 600;
   margin-bottom: 4px;
 }
@@ -681,7 +692,7 @@ html, body, #root {
 .nearby-sb-dep {
   font-size: 14px;
   font-variant-numeric: tabular-nums;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .nearby-sb-dep.soonest {
@@ -709,9 +720,9 @@ html, body, #root {
 .nearby-sb-card-nav {
   width: 100%;
   padding: 8px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -720,7 +731,7 @@ html, body, #root {
 }
 
 .nearby-sb-card-nav:hover {
-  background: rgba(255,255,255,0.18);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .nearby-sb-card-nav:active {
@@ -737,13 +748,18 @@ html, body, #root {
     width: 100%;
     height: 55vh;
     border-radius: 16px 16px 0 0;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
     animation: nearby-sb-in-mobile 0.3s ease;
   }
 
   @keyframes nearby-sb-in-mobile {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
+    from {
+      transform: translateY(100%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
   }
 }
 
@@ -800,10 +816,10 @@ html, body, #root {
   right: 12px;
   z-index: 1000;
   width: 360px;
-  max-height: calc(100vh - 24px);
+  max-height: 420px;
   background: var(--panel-bg);
   border-radius: var(--radius);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -811,8 +827,15 @@ html, body, #root {
 }
 
 @keyframes alerts-panel-in {
-  from { opacity: 0; transform: translateY(-12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .alerts-panel-collapsed {
@@ -856,7 +879,7 @@ html, body, #root {
 
 .alerts-panel-toggle {
   font-size: 12px;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .alerts-panel-list {
@@ -930,7 +953,8 @@ html, body, #root {
   font-weight: 700;
 }
 
-.effect-badge, .type-badge {
+.effect-badge,
+.type-badge {
   display: inline-block;
   padding: 2px 10px;
   border-radius: 4px;
@@ -1000,7 +1024,7 @@ html, body, #root {
   background: var(--panel-bg);
   border-radius: 8px;
   padding: 10px 14px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   font-size: 13px;
 }
 
