@@ -20,7 +20,7 @@ export interface Route {
   toStation: Station
 }
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
 async function generateWalkingDirections(
   fromLat: number, fromLng: number,

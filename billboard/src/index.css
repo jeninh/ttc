@@ -662,6 +662,66 @@ body {
   overflow: hidden;
 }
 
+/* Relative Directions Popup */
+.relative-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.relative-popup {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  animation: fade-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.relative-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.relative-popup-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.relative-popup-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.relative-popup-body::-webkit-scrollbar { width: 8px; }
+.relative-popup-body::-webkit-scrollbar-track { background: transparent; }
+.relative-popup-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+
 /* Testing Toggle */
 .testing-toggle {
   background: rgba(255, 255, 255, 0.1);
