@@ -12,6 +12,7 @@ import { useIsMobile } from './hooks/useIsMobile'
 import { findRoute, type Route } from './services/routing'
 import type { GeoResult } from './services/geocoding'
 import type { Station } from './data/stations'
+import VoiceoverToggle from './components/VoiceoverToggle'
 import './App.css'
 
 export default function App() {
@@ -138,6 +139,32 @@ export default function App() {
             </button>
           )}
         </div>
+      )}
+
+      <VoiceoverToggle shiftRight={!!userLocation && !route} />
+      {/* Map */}
+      <div className="map-container">
+        <TTCMap
+          route={route}
+          originCoords={fromCoords}
+          destCoords={toCoords}
+          userLocation={userLatLng}
+          onStationClick={handleStationClick}
+          alertSegments={alertSegments}
+        />
+      </div>
+
+      {/* Live rotating alerts ticker */}
+      <AlertsPanel alerts={alerts} loading={alertsLoading} />
+
+      {/* Nearby stations panel (left side) */}
+      {userLocation && !route && (
+        <NearbyPanel
+          userLat={userLocation.lat}
+          userLng={userLocation.lng}
+          emulated={userLocation.emulated}
+          onNavigateTo={handleNearbyNavigate}
+        />
       )}
 
       {/* Location loading indicator */}
