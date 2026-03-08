@@ -1092,12 +1092,17 @@ body,
    ══════════════════════════════════════════════════ */
 
 .app-mobile {
-  padding-bottom: 0;
-  padding-bottom: var(--sai-bottom);
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .app-mobile .map-container {
-  height: calc(100% - var(--tab-bar-h) - var(--sai-bottom));
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tab-bar-h) + var(--sai-bottom));
+  z-index: 1;
 }
 
 /* ── Mobile bottom tab bar ── */
@@ -1108,10 +1113,10 @@ body,
   right: 0;
   z-index: 2000;
   display: flex;
-  height: var(--tab-bar-h);
+  height: calc(var(--tab-bar-h) + var(--sai-bottom));
+  padding-bottom: var(--sai-bottom);
   background: var(--ttc-dark);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: var(--sai-bottom);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }

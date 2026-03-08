@@ -143,30 +143,6 @@ export default function App() {
       )}
 
       <VoiceoverToggle shiftRight={!!userLocation && !route} />
-      {/* Map */}
-      <div className="map-container">
-        <TTCMap
-          route={route}
-          originCoords={fromCoords}
-          destCoords={toCoords}
-          userLocation={userLatLng}
-          onStationClick={handleStationClick}
-          alertSegments={alertSegments}
-        />
-      </div>
-
-      {/* Live rotating alerts ticker */}
-      <AlertsPanel alerts={alerts} loading={alertsLoading} />
-
-      {/* Nearby stations panel (left side) */}
-      {userLocation && !route && (
-        <NearbyPanel
-          userLat={userLocation.lat}
-          userLng={userLocation.lng}
-          emulated={userLocation.emulated}
-          onNavigateTo={handleNearbyNavigate}
-        />
-      )}
 
       {/* Location loading indicator */}
       {(locLoading || isRouting) && (
@@ -178,7 +154,7 @@ export default function App() {
 
       {isMobile ? (
         <>
-          {/* Mobile: Map is always rendered but may be behind panels */}
+          {/* Mobile: Map fills the space above the tab bar */}
           <div className="map-container">
             <TTCMap
               route={route}
