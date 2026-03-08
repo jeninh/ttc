@@ -1,7 +1,7 @@
-import { graph as subwayGraph, getLineById, type GraphEdge } from '../data/lines'
+import { graph as subwayGraph, getLineById, lines, type GraphEdge } from '../data/lines'
 import { stationMap, type Station } from '../data/stations'
 import { fetchStreetcarRoutes, buildStreetcarGraphEdges } from './streetcars'
-import { generateWalkingDirections } from './gemini'
+import { generateWalkingDirections, type AffectedSegment } from './gemini'
 
 export interface RouteStep {
   type: 'walk' | 'ride' | 'transfer'
@@ -23,13 +23,43 @@ export interface Route {
   toStation: Station
 }
 
+/** Check if an edge falls within an affected segment and return its status. */
+function getEdgeStatus(
+  from: string,
+  to: string,
+  lineId: string,
+  alertSegments: AffectedSegment[]
+): AffectedSegment['status'] | null {
+  const line = lines.find(l => l.id === lineId)
+  if (!line) return null
+
+  for (const seg of alertSegments) {
+    if (seg.lineId !== lineId) continue
+    const segFromIdx = line.stationIds.indexOf(seg.fromStationId)
+    const segToIdx = line.stationIds.indexOf(seg.toStationId)
+    if (segFromIdx === -1 || segToIdx === -1) continue
+    const lo = Math.min(segFromIdx, segToIdx)
+    const hi = Math.max(segFromIdx, segToIdx)
+
+    const edgeFromIdx = line.stationIds.indexOf(from)
+    const edgeToIdx = line.stationIds.indexOf(to)
+    if (edgeFromIdx === -1 || edgeToIdx === -1) continue
+
+    if (edgeFromIdx >= lo && edgeFromIdx <= hi && edgeToIdx >= lo && edgeToIdx <= hi) {
+      return seg.status
+    }
+  }
+  return null
+}
+
 export async function findRoute(
   fromLat: number,
   fromLng: number,
   toLat: number,
   toLng: number,
   destinationName: string = 'Destination',
-  useGemini: boolean = false
+  useGemini: boolean = false,
+  alertSegments: AffectedSegment[] = []
 ): Promise<Route | null> {
   console.log(`[findRoute] Executing route finding logic from [${fromLat}, ${fromLng}] to [${toLat}, ${toLng}]`)
   // Build a unified snapshot of the graph (Subways + Streetcars)
@@ -108,10 +138,16 @@ export async function findRoute(
 
     const edges = unifiedGraph.get(current) ?? []
     for (const edge of edges) {
+      // Check if this edge is affected by a closure or delay
+      const status = getEdgeStatus(current, edge.to, edge.line, alertSegments)
+      if (status === 'closed') continue // skip closed edges entirely
+
       const prevEntry = prev.get(current)
       // Add penalty when switching lines (subway to streetcar, etc.)
       const transferPenalty = prevEntry && prevEntry.line !== edge.line ? 3 : 0
-      const newDist = minDist + edge.weight + transferPenalty
+      // Delayed edges cost 3x normal, diversions cost 2x
+      const disruptionMultiplier = status === 'delayed' ? 3 : status === 'diversion' ? 2 : 1
+      const newDist = minDist + (edge.weight * disruptionMultiplier) + transferPenalty
       if (newDist < (dist.get(edge.to) ?? Infinity)) {
         dist.set(edge.to, newDist)
         prev.set(edge.to, { stationId: current, line: edge.line })
