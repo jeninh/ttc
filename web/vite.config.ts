@@ -55,6 +55,16 @@ export default defineConfig({
               networkTimeoutSeconds: 5,
             },
           },
+          {
+            urlPattern: /^https:\/\/photon\.komoot\.io\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'photon-geocoding',
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
+              cacheableResponse: { statuses: [0, 200] },
+              networkTimeoutSeconds: 5,
+            },
+          },
         ],
       },
     }),
