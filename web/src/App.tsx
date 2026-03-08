@@ -4,6 +4,7 @@ import SearchPanel from './components/SearchPanel'
 import DirectionsPanel from './components/DirectionsPanel'
 import AlertsPanel from './components/AlertsPanel'
 import NearbyPanel from './components/NearbyPanel'
+import BottomSheet from './components/BottomSheet'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { useAlerts } from './hooks/useAlerts'
 import { useGeminiAlerts } from './hooks/useGeminiAlerts'
@@ -189,67 +190,79 @@ export default function App() {
             />
           </div>
 
-          {/* Mobile panel area above the tab bar */}
-          {activeTab === 'navigate' && (
-            <div className="mobile-panel">
-              <div className="mobile-panel-header">
-                <h2>🚇 Navigate</h2>
-                {!online && <span className="offline-chip">Offline</span>}
-              </div>
-              {!route ? (
-                <div className="search-section">
-                  <SearchPanel
-                    label="From"
-                    placeholder="Enter starting address..."
-                    value={fromText}
-                    onChange={setFromText}
-                    onSelect={handleFromSelect}
-                  />
-                  <SearchPanel
-                    label="To"
-                    placeholder="Enter destination..."
-                    value={toText}
-                    onChange={setToText}
-                    onSelect={handleToSelect}
-                  />
-                  <button
-                    className="navigate-btn"
-                    onClick={handleNavigate}
-                    disabled={!fromCoords || !toCoords || isRouting}
-                  >
-                    {isRouting ? 'Routing...' : 'Navigate'}
-                  </button>
-                </div>
-              ) : (
-                <DirectionsPanel route={route} onClose={handleClear} />
-              )}
+          {/* Mobile panel area above the tab bar — iOS-style bottom sheets */}
+          <BottomSheet
+            open={activeTab === 'navigate'}
+            snaps={[0, 0.4, 0.95]}
+            defaultSnap={1}
+            onDismiss={() => setActiveTab('map')}
+            className="mobile-panel"
+          >
+            <div className="mobile-panel-header">
+              <h2>🚇 Navigate</h2>
+              {!online && <span className="offline-chip">Offline</span>}
             </div>
-          )}
-
-          {activeTab === 'nearby' && (
-            <div className="mobile-panel">
-              {userLocation ? (
-                <NearbyPanel
-                  userLat={userLocation.lat}
-                  userLng={userLocation.lng}
-                  emulated={userLocation.emulated}
-                  onNavigateTo={handleNearbyNavigate}
-                  inline
+            {!route ? (
+              <div className="search-section">
+                <SearchPanel
+                  label="From"
+                  placeholder="Enter starting address..."
+                  value={fromText}
+                  onChange={setFromText}
+                  onSelect={handleFromSelect}
                 />
-              ) : (
-                <div className="mobile-panel-empty">
-                  <span>📍</span>
-                  <p>{locLoading ? 'Getting your location…' : 'Location not available'}</p>
-                </div>
-              )}
-            </div>
-          )}
+                <SearchPanel
+                  label="To"
+                  placeholder="Enter destination..."
+                  value={toText}
+                  onChange={setToText}
+                  onSelect={handleToSelect}
+                />
+                <button
+                  className="navigate-btn"
+                  onClick={handleNavigate}
+                  disabled={!fromCoords || !toCoords || isRouting}
+                >
+                  {isRouting ? 'Routing...' : 'Navigate'}
+                </button>
+              </div>
+            ) : (
+              <DirectionsPanel route={route} onClose={handleClear} />
+            )}
+          </BottomSheet>
 
-          {activeTab === 'alerts' && (
-            <div className="mobile-panel">
-              <AlertsPanel alerts={alerts} loading={alertsLoading} inline />
-            </div>
-          )}
+          <BottomSheet
+            open={activeTab === 'nearby'}
+            snaps={[0, 0.35, 0.7, 0.95]}
+            defaultSnap={2}
+            onDismiss={() => setActiveTab('map')}
+            className="mobile-panel"
+          >
+            {userLocation ? (
+              <NearbyPanel
+                userLat={userLocation.lat}
+                userLng={userLocation.lng}
+                emulated={userLocation.emulated}
+                onNavigateTo={handleNearbyNavigate}
+                inline
+              />
+            ) : (
+              <div className="mobile-panel-empty">
+                <span>📍</span>
+                <p>{locLoading ? 'Getting your location…' : 'Location not available'}</p>
+              </div>
+            )}
+          </BottomSheet>
+
+          <BottomSheet
+            open={activeTab === 'alerts'}
+            snaps={[0, 0.35, 0.7, 0.95]}
+            defaultSnap={1}
+            onDismiss={() => setActiveTab('map')}
+            className="mobile-panel"
+          >
+            <AlertsPanel alerts={alerts} loading={alertsLoading} inline />
+          </BottomSheet>
 
           {/* Mobile bottom tab bar */}
           <nav className="mobile-tab-bar">

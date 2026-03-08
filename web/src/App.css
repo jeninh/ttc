@@ -6,6 +6,8 @@
   --text-secondary: #666;
   --border: #e0e0e0;
   --radius: 12px;
+  --tab-bar-h: clamp(52px, 8vh, 64px);
+  --sai-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * {
@@ -52,14 +54,14 @@ body,
   z-index: 1000;
   background: #ff9800;
   color: #fff;
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: clamp(6px, 1vw, 10px) clamp(12px, 2vw, 20px);
+  font-size: clamp(12px, 2vw, 15px);
   font-weight: 600;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: clamp(8px, 1.5vw, 14px);
 }
 
 .restore-btn {
@@ -83,7 +85,7 @@ body,
   border-radius: var(--radius) var(--radius) 0 0;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease;
-  max-height: 70vh;
+  max-height: 70dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -111,11 +113,11 @@ body,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px 12px;
+  padding: 0 clamp(12px, 2vw, 20px) clamp(8px, 1.5vw, 14px);
 }
 
 .nav-header h2 {
-  font-size: 18px;
+  font-size: clamp(15px, 2.5vw, 20px);
   color: var(--text);
 }
 
@@ -130,17 +132,17 @@ body,
 
 /* Search */
 .search-section {
-  padding: 0 16px 16px;
+  padding: 0 clamp(12px, 3vw, 20px) clamp(12px, 2vw, 20px);
 }
 
 .search-field {
   position: relative;
-  margin-bottom: 10px;
+  margin-bottom: clamp(6px, 1.2vw, 12px);
 }
 
 .search-field label {
   display: block;
-  font-size: 12px;
+  font-size: clamp(10px, 1.6vw, 13px);
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 4px;
@@ -150,10 +152,10 @@ body,
 
 .search-field input {
   width: 100%;
-  padding: 12px 14px;
+  padding: clamp(8px, 1.5vw, 14px) clamp(10px, 2vw, 16px);
   border: 2px solid var(--border);
   border-radius: 8px;
-  font-size: 15px;
+  font-size: clamp(13px, 2vw, 16px);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -189,7 +191,7 @@ body,
   border: 1px solid var(--border);
   border-radius: 8px;
   list-style: none;
-  max-height: 180px;
+  max-height: clamp(120px, 25vh, 220px);
   overflow-y: auto;
   z-index: 100;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -221,12 +223,12 @@ body,
 
 .navigate-btn {
   width: 100%;
-  padding: 14px;
+  padding: clamp(10px, 2vw, 16px);
   background: var(--ttc-red);
   color: #fff;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: clamp(14px, 2.2vw, 17px);
   font-weight: 700;
   cursor: pointer;
   margin-top: 4px;
@@ -244,7 +246,7 @@ body,
 
 /* Directions */
 .directions-panel {
-  padding: 0 16px 16px;
+  padding: 0 clamp(12px, 3vw, 20px) clamp(12px, 2vw, 20px);
 }
 
 .directions-header {
@@ -439,14 +441,16 @@ body,
   transform: translate(-50%, -50%);
   z-index: 1000;
   background: rgba(255, 255, 255, 0.95);
-  padding: 16px 28px;
+  padding: clamp(10px, 2vw, 18px) clamp(16px, 4vw, 32px);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  font-size: 14px;
+  font-size: clamp(12px, 2vw, 15px);
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: clamp(6px, 1.5vw, 12px);
+  max-width: 90vw;
+  white-space: nowrap;
 }
 
 .loc-loading-spinner {
@@ -465,7 +469,7 @@ body,
   left: 0;
   bottom: 0;
   z-index: 999;
-  width: 320px;
+  width: clamp(260px, 30vw, 380px);
   background: rgba(26, 26, 46, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -493,12 +497,12 @@ body,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 18px 12px;
+  padding: clamp(12px, 2vw, 20px) clamp(12px, 2vw, 20px) clamp(8px, 1.5vw, 14px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .nearby-sb-title {
-  font-size: 18px;
+  font-size: clamp(15px, 2.5vw, 20px);
   font-weight: 800;
   color: #fff;
 }
@@ -550,7 +554,7 @@ body,
 }
 
 .nearby-sb-closest-name {
-  font-size: 20px;
+  font-size: clamp(16px, 3vw, 22px);
   font-weight: 800;
   color: #fff;
   margin-bottom: 6px;
@@ -747,7 +751,7 @@ body,
     left: 0;
     right: 0;
     width: 100%;
-    height: 55vh;
+    height: 55dvh;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
     animation: nearby-sb-in-mobile 0.3s ease;
@@ -816,8 +820,8 @@ body,
   top: 12px;
   right: 12px;
   z-index: 1000;
-  width: 360px;
-  max-height: 420px;
+  width: clamp(280px, 30vw, 400px);
+  max-height: clamp(300px, 45vh, 500px);
   background: var(--panel-bg);
   border-radius: var(--radius);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
@@ -1060,11 +1064,7 @@ body,
 /* Mobile responsive */
 @media (max-width: 600px) {
   .nav-panel {
-    max-height: 60vh;
-  }
-
-  .nav-header h2 {
-    font-size: 16px;
+    max-height: 60dvh;
   }
 
   .alerts-panel {
@@ -1077,9 +1077,9 @@ body,
     left: auto;
     right: 16px;
     bottom: 16px;
-    width: 400px;
+    width: clamp(320px, 32vw, 440px);
     border-radius: var(--radius);
-    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
   }
 
   .nav-panel.collapsed {
@@ -1093,13 +1093,11 @@ body,
 
 .app-mobile {
   padding-bottom: 0;
-  /* iOS safe-area for bottom home indicator */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--sai-bottom);
 }
 
 .app-mobile .map-container {
-  /* Make room for tab bar */
-  height: calc(100% - 60px - env(safe-area-inset-bottom, 0px));
+  height: calc(100% - var(--tab-bar-h) - var(--sai-bottom));
 }
 
 /* ── Mobile bottom tab bar ── */
@@ -1110,10 +1108,10 @@ body,
   right: 0;
   z-index: 2000;
   display: flex;
-  height: 60px;
+  height: var(--tab-bar-h);
   background: var(--ttc-dark);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--sai-bottom);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
@@ -1124,7 +1122,7 @@ body,
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: clamp(1px, 0.3vh, 3px);
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.45);
@@ -1132,7 +1130,7 @@ body,
   position: relative;
   transition: color 0.2s;
   -webkit-tap-highlight-color: transparent;
-  padding: 6px 0;
+  padding: clamp(4px, 0.8vh, 8px) 0;
 }
 
 .mobile-tab.active {
@@ -1151,12 +1149,12 @@ body,
 }
 
 .mobile-tab-icon {
-  font-size: 22px;
+  font-size: clamp(18px, 3vw, 24px);
   line-height: 1;
 }
 
 .mobile-tab-label {
-  font-size: 10px;
+  font-size: clamp(8px, 1.4vw, 11px);
   font-weight: 600;
   letter-spacing: 0.3px;
 }
@@ -1178,38 +1176,104 @@ body,
   padding: 0 4px;
 }
 
-/* ── Mobile panel (slides up from tab bar) ── */
-.mobile-panel {
+/* ══════════════════════════════════════════════════
+   iOS-STYLE BOTTOM SHEET
+   ══════════════════════════════════════════════════ */
+
+/* Backdrop (dimmed overlay) */
+.bs-backdrop {
   position: fixed;
-  bottom: calc(60px + env(safe-area-inset-bottom, 0px));
-  left: 0;
-  right: 0;
-  z-index: 1500;
-  background: var(--panel-bg);
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
-  max-height: calc(100vh - 60px - env(safe-area-inset-bottom, 0px) - 40px);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  animation: mobile-panel-in 0.25s ease;
+  inset: 0;
+  z-index: 1400;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.3s ease;
+  pointer-events: none;
 }
 
-@keyframes mobile-panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.bs-backdrop.bs-backdrop-visible {
+  background: rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+}
+
+/* Sheet container */
+.bs-sheet {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100dvh;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.bs-sheet > * {
+  pointer-events: auto;
+}
+
+.bs-dragging {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Drag handle bar (iOS-style) */
+.bs-handle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0 6px;
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+  background: var(--panel-bg);
+  border-radius: 16px 16px 0 0;
+}
+
+.bs-dragging .bs-handle {
+  cursor: grabbing;
+}
+
+.bs-handle-bar {
+  width: 36px;
+  height: 5px;
+  border-radius: 2.5px;
+  background: #c0c0c0;
+  transition: background 0.15s;
+}
+
+.bs-handle:hover .bs-handle-bar,
+.bs-dragging .bs-handle-bar {
+  background: #999;
+}
+
+/* Scrollable content area */
+.bs-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  background: var(--panel-bg);
+}
+
+/* ── Mobile panel (inside bottom sheet) ── */
+.mobile-panel.bs-sheet {
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-panel .bs-handle {
+  background: var(--panel-bg);
+}
+
+.mobile-panel .bs-content {
+  background: var(--panel-bg);
 }
 
 .mobile-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 16px 12px;
+  padding: clamp(10px, 2vw, 18px) clamp(12px, 3vw, 20px) clamp(8px, 1.5vw, 14px);
   position: sticky;
   top: 0;
   background: var(--panel-bg);
@@ -1218,7 +1282,7 @@ body,
 }
 
 .mobile-panel-header h2 {
-  font-size: 18px;
+  font-size: clamp(15px, 3.5vw, 20px);
   color: var(--text);
   margin: 0;
 }
@@ -1262,10 +1326,21 @@ body,
 /* ── Nearby inline (mobile) ── */
 .nearby-inline {
   background: rgba(26, 26, 46, 0.95);
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
-  min-height: 200px;
+  min-height: clamp(150px, 30vh, 300px);
+}
+
+/* Override sheet backgrounds for the dark nearby panel */
+.mobile-panel:has(.nearby-inline) .bs-handle {
+  background: rgba(26, 26, 46, 0.98);
+}
+.mobile-panel:has(.nearby-inline) .bs-handle-bar {
+  background: rgba(255, 255, 255, 0.3);
+}
+.mobile-panel .bs-content:has(.nearby-inline) {
+  background: rgba(26, 26, 46, 0.95);
 }
 
 .nearby-inline .nearby-sb-header {
@@ -1275,14 +1350,47 @@ body,
   background: rgba(26, 26, 46, 0.98);
 }
 
+/* ── Text directions bottom sheet ── */
+.text-directions-sheet .bs-handle {
+  background: var(--panel-bg);
+}
+.text-directions-sheet .bs-content {
+  background: var(--panel-bg);
+}
+.text-directions-content {
+  padding: 0 clamp(12px, 3vw, 20px) clamp(12px, 2vw, 20px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2vw, 16px);
+}
+.text-directions-title {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: clamp(15px, 3vw, 18px);
+}
+.text-directions-textarea {
+  width: 100%;
+  height: clamp(150px, 30vh, 300px);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-family: monospace;
+  font-size: clamp(11px, 1.8vw, 14px);
+  resize: none;
+  color: var(--text);
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Mobile: move search dropdown above keyboard */
 .app-mobile .search-dropdown {
-  max-height: 150px;
+  max-height: clamp(100px, 20vh, 160px);
 }
 
 /* Mobile: fix loading indicator above tab bar */
 .app-mobile .loc-loading {
-  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--tab-bar-h) + var(--sai-bottom) + 20px);
   top: auto;
   left: 50%;
   transform: translateX(-50%);
@@ -1299,4 +1407,27 @@ body,
 
 .app-mobile .nav-panel {
   display: none;
+}
+
+/* ── Landscape orientation on small screens ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root {
+    --tab-bar-h: 44px;
+  }
+
+  .mobile-panel-header {
+    padding: 8px 12px 6px;
+  }
+
+  .mobile-panel-empty {
+    padding: 20px 16px;
+  }
+
+  .nearby-inline {
+    min-height: clamp(100px, 40vh, 200px);
+  }
+
+  .bs-handle {
+    padding: 6px 0 4px;
+  }
 }
