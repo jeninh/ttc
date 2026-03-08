@@ -65,6 +65,49 @@ export default function DirectionsPanel({ route, onClose }: Props) {
       return '';
     }).join('\n')
 
+  const handlePrint = async () => {
+    const markdown = `# 🚇 TTC TRIP\n\n` +
+      `## ${route.fromStation.name}\n` +
+      `## to ${route.toStation.name}\n\n` +
+      `**Duration:** ${route.totalMin} min\n` +
+      `---\n\n` +
+      route.steps.map((step, i) => {
+        let text = "";
+        if (step.type === 'walk') {
+          if (step.instructions && step.instructions.length > 0) {
+            text = `### ${i + 1}. Walk\n${step.instructions[0]} (${step.durationMin} min)`;
+            if (step.instructions.length > 1) {
+              text += '\n' + step.instructions.slice(1).map(inst => `- ${inst}`).join('\n');
+            }
+          } else {
+            text = `### ${i + 1}. Walk\nTo **${step.to.name}** (${step.durationMin} min)`;
+          }
+        } else if (step.type === 'ride') {
+          text = `### ${i + 1}. Ride ${step.lineName}\n**${step.from.name}** to **${step.to.name}**\n(${step.durationMin} min, ${step.stations?.length ?? 0} stops)`;
+        } else if (step.type === 'transfer') {
+          text = `### ${i + 1}. Transfer\nAt **${step.from.name}** (${step.durationMin} min)`;
+        }
+        return text;
+      }).join('\n\n') + 
+      `\n\n---\n# 🚂 Safe Travels!`;
+
+    try {
+      const response = await fetch('http://localhost:2221/print', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: markdown })
+      });
+      if (response.ok) {
+        alert('Sent to printer!');
+      } else {
+        const err = await response.json();
+        alert('Print failed: ' + (err.error || 'Unknown error'));
+      }
+    } catch (e) {
+      alert('Could not connect to printer server. Make sure print_server.py is running.');
+    }
+  };
+
   return (
     <div className="directions-panel">
       <div className="directions-header">
@@ -117,6 +160,24 @@ export default function DirectionsPanel({ route, onClose }: Props) {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button 
+            onClick={handlePrint}
+            style={{
+              padding: '6px 12px',
+              border: 'none',
+              borderRadius: '6px',
+              background: 'var(--ttc-red)',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            🖨️ Print
+          </button>
+          <button 
             onClick={() => {
               navigator.clipboard.writeText(textDirections)
               setCopied(true)
@@ -128,7 +189,8 @@ export default function DirectionsPanel({ route, onClose }: Props) {
               borderRadius: '6px',
               background: 'transparent',
               cursor: 'pointer',
-              fontSize: '12px'
+              fontSize: '12px',
+              color: 'var(--text)'
             }}
           >
             {copied ? '✅ Copied!' : '📋 Copy'}
