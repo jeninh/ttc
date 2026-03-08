@@ -17,6 +17,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-leaflet": "^5.0.0",
+    "react-markdown": "^10.1.0",
     "tailwind-merge": "^3.5.0",
     "vite-plugin-pwa": "^1.2.0",
     "workbox-window": "^7.4.0"

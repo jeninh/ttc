@@ -99,8 +99,14 @@ For transit portions:
 - Mention how many stops
 - Say what to look for when getting off
 
-Keep it concise but natural — like a friend giving directions, BUT don't be too nice. Use bullet points.
-Return ONLY the directions text, no JSON, no markdown code fences.`
+Keep it concise but natural — like a friend giving directions, BUT don't be too nice.
+
+Format the output as clean Markdown:
+- Use **bold** for landmark names and street names
+- Use bullet points (- ) for each step
+- Use ### headings to separate walking vs transit sections
+- Use > blockquotes for tips or important notes
+Return ONLY the markdown text, no code fences wrapping it.`
 }
 
 export async function getRelativeDirections(route: Route): Promise<string> {
