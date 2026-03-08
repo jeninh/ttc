@@ -92,7 +92,7 @@ Generate natural, human-friendly directions using these landmarks as reference p
 - Use phrases like "Walk about x blocks to the right until you see the [Landmark Name]"
 - Reference real landmarks like "You'll pass [Business Name] on your left"  
 - Use street-level cues like "Turn left at the [Landmark Name] on the corner"
-- Use left/right direction over absolute direction whenever possible
+- ALWAYS use relative direction (left/right/up/down) over absolute direction
 
 For transit portions:
 - Say which line to take and which direction
