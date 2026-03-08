@@ -23,8 +23,7 @@ import math
 import sys
 import time
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Flask, request, jsonify, make_response
 from bleak import BleakClient
 from bleak.exc import BleakError
 from PIL import Image, ImageDraw, ImageFont
@@ -583,11 +582,25 @@ def stack_images(images):
 
 # --- Flask App ---
 app = Flask(__name__)
-CORS(app)
 
 
-@app.route('/print', methods=['POST'])
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
+
+
+@app.route('/print', methods=['POST', 'OPTIONS'])
 def print_text():
+    if request.method == 'OPTIONS':
+        resp = make_response('', 204)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return resp
+
     start_time = time.time()
     log.debug(f"[DEBUG] >> print_text POST start")
     log.debug(f"[DEBUG] Headers: {request.headers}")
