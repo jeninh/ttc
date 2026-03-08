@@ -25,6 +25,7 @@ export default function App() {
   const [toCoords, setToCoords] = useState<[number, number] | null>(null)
   const [route, setRoute] = useState<Route | null>(null)
   const [panelOpen, setPanelOpen] = useState(true)
+  const [isRouting, setIsRouting] = useState(false)
 
   const handleFromSelect = useCallback((r: GeoResult) => {
     setFromCoords([r.lat, r.lng])
@@ -34,18 +35,23 @@ export default function App() {
     setToCoords([r.lat, r.lng])
   }, [])
 
-  const handleNavigate = useCallback(() => {
+  const handleNavigate = useCallback(async () => {
     if (!fromCoords || !toCoords) return
-    const result = findRoute(fromCoords[0], fromCoords[1], toCoords[0], toCoords[1])
-    setRoute(result)
-    setPanelOpen(true)
+    setIsRouting(true)
+    try {
+      const result = await findRoute(fromCoords[0], fromCoords[1], toCoords[0], toCoords[1], toText)
+      setRoute(result)
+      setPanelOpen(true)
 
-    if (result) {
-      try {
-        localStorage.setItem('ttc-cached-route', JSON.stringify(result))
-      } catch {}
+      if (result) {
+        try {
+          localStorage.setItem('ttc-cached-route', JSON.stringify(result))
+        } catch {}
+      }
+    } finally {
+      setIsRouting(false)
     }
-  }, [fromCoords, toCoords])
+  }, [fromCoords, toCoords, toText])
 
   const handleStationClick = useCallback(
     (station: Station, role: 'from' | 'to') => {
@@ -64,15 +70,30 @@ export default function App() {
 
   // Navigate TO a station from the nearby panel (uses current location as origin)
   const handleNearbyNavigate = useCallback(
-    (station: Station) => {
+    async (station: Station) => {
       if (route) setRoute(null)
+      let startCoords: [number, number] | null = null
+      
       if (userLocation) {
         setFromCoords([userLocation.lat, userLocation.lng])
         setFromText('My Location')
+        startCoords = [userLocation.lat, userLocation.lng]
       }
       setToCoords([station.lat, station.lng])
       setToText(station.name + ' Station')
-      setPanelOpen(true)
+      
+      if (startCoords) {
+        setIsRouting(true)
+        try {
+          const result = await findRoute(startCoords[0], startCoords[1], station.lat, station.lng, station.name + ' Station')
+          setRoute(result)
+          setPanelOpen(true)
+        } finally {
+          setIsRouting(false)
+        }
+      } else {
+        setPanelOpen(true)
+      }
     },
     [route, userLocation],
   )
@@ -139,10 +160,10 @@ export default function App() {
       )}
 
       {/* Location loading indicator */}
-      {locLoading && (
+      {(locLoading || isRouting) && (
         <div className="loc-loading">
           <span className="loc-loading-spinner" />
-          Getting your location…
+          {isRouting ? 'Generating route & walking directions...' : 'Getting your location…'}
         </div>
       )}
 
@@ -178,9 +199,9 @@ export default function App() {
                 <button
                   className="navigate-btn"
                   onClick={handleNavigate}
-                  disabled={!fromCoords || !toCoords}
+                  disabled={!fromCoords || !toCoords || isRouting}
                 >
-                  Navigate
+                  {isRouting ? 'Routing...' : 'Navigate'}
                 </button>
               </div>
             ) : (
