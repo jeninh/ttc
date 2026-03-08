@@ -1411,12 +1411,29 @@ body,
   max-height: clamp(100px, 20vh, 160px);
 }
 
-/* Mobile: fix loading indicator above tab bar */
-.app-mobile .loc-loading {
-  bottom: calc(var(--tab-bar-h) + var(--sai-bottom) + 20px);
-  top: auto;
+/* Mobile: minimal loading indicator — small pill at top, doesn't block the map */
+.loc-loading-mobile {
+  position: fixed;
+  top: env(safe-area-inset-top, 12px);
+  bottom: auto;
   left: 50%;
   transform: translateX(-50%);
+  padding: 6px 14px;
+  font-size: 12px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1100;
+}
+
+.loc-loading-mobile .loc-loading-spinner {
+  width: 12px;
+  height: 12px;
+  border-width: 2px;
+  border-top-color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
 }
 
 /* Mobile: hide desktop-specific overlays */
