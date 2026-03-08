@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import BottomSheet from './BottomSheet'
 import type { Route } from '../services/routing'
 import { useAudio } from '../contexts/AudioContext'
 import { getRelativeDirections } from '../services/relativeDirections'
@@ -16,7 +15,7 @@ const icons: Record<string, string> = {
 }
 
 export default function DirectionsPanel({ route, onClose }: Props) {
-  const [showText, setShowText] = useState(false)
+  const [copied, setCopied] = useState(false)
   const { playText, stopAudio, isPlaying, isLoading } = useAudio()
   
   const [showRelative, setShowRelative] = useState(false)
@@ -118,7 +117,11 @@ export default function DirectionsPanel({ route, onClose }: Props) {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button 
-            onClick={() => setShowText(true)}
+            onClick={() => {
+              navigator.clipboard.writeText(textDirections)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+            }}
             style={{
               padding: '4px 8px',
               border: '1px solid var(--border)',
@@ -128,39 +131,12 @@ export default function DirectionsPanel({ route, onClose }: Props) {
               fontSize: '12px'
             }}
           >
-            📋 Text View
+            {copied ? '✅ Copied!' : '📋 Copy'}
           </button>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
       </div>
 
-      <BottomSheet
-        open={showText}
-        snaps={[0, 0.55, 0.9]}
-        defaultSnap={1}
-        onDismiss={() => setShowText(false)}
-        className="text-directions-sheet"
-      >
-        <div className="text-directions-content">
-          <h3 className="text-directions-title">
-            Text Directions
-            <button className="close-btn" onClick={() => setShowText(false)}>✕</button>
-          </h3>
-          <textarea
-            readOnly
-            value={textDirections}
-            className="text-directions-textarea"
-          />
-          <button
-            className="navigate-btn"
-            onClick={() => {
-              navigator.clipboard.writeText(textDirections)
-            }}
-          >
-            Copy to Clipboard
-          </button>
-        </div>
-      </BottomSheet>
       <div className="directions-summary">
         <span className="station-badge">{route.fromStation.name}</span>
         <span className="arrow">→</span>
