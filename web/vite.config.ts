@@ -66,6 +66,33 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/ttc-alerts/, '/api/alerts/live-alerts'),
       },
+      '/api/gemini': {
+        target: 'https://generativelanguage.googleapis.com',
+        changeOrigin: true,
+        rewrite: () => `/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      },
+      '/api/elevenlabs': {
+        target: 'https://api.elevenlabs.io',
+        changeOrigin: true,
+        rewrite: () => '/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM',
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('xi-api-key', process.env.ELEVENLABS_API_KEY ?? '')
+            proxyReq.setHeader('Accept', 'audio/mpeg')
+          })
+        },
+      },
+      '/api/places': {
+        target: 'https://places.googleapis.com',
+        changeOrigin: true,
+        rewrite: () => '/v1/places:searchNearby',
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('X-Goog-Api-Key', process.env.GEMINI_API_KEY ?? '')
+            proxyReq.setHeader('X-Goog-FieldMask', 'places.displayName,places.location,places.primaryType')
+          })
+        },
+      },
     },
   },
   // SPA fallback so /emulate serves index.html

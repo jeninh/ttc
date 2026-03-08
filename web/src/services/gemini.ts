@@ -13,7 +13,7 @@ export interface AffectedSegment {
 
 import polyline from '@mapbox/polyline'
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+const GEMINI_URL = '/api/gemini'
 const CACHE_KEY = 'ttc-gemini-segments'
 const CACHE_TIME_KEY = 'ttc-gemini-time'
 const CACHE_TTL = 3_600_000 // 1 hour
@@ -86,10 +86,6 @@ function parseGeminiResponse(text: string): AffectedSegment[] {
 }
 
 export async function analyzeAlerts(alerts: TTCAlert[], forceRefresh = false): Promise<AffectedSegment[]> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY
-  console.log('[Gemini] API key present:', !!apiKey)
-  if (!apiKey) return []
-
   const subwayAlerts = alerts.filter((a) => a.routeType === 'subway')
   console.log('[Gemini] Subway alerts found:', subwayAlerts.length, subwayAlerts.map((a) => a.title))
   if (subwayAlerts.length === 0) return []
@@ -105,7 +101,7 @@ export async function analyzeAlerts(alerts: TTCAlert[], forceRefresh = false): P
 
   console.log('[Gemini] Calling Gemini API...')
   try {
-    const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    const res = await fetch(GEMINI_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -172,10 +168,8 @@ export async function generateWalkingDirections(
         if (rawInstructions.length > 0) {
           const decodedPath = route.geometry ? polyline.decode(route.geometry as string) as [number, number][] : []
           
-          const apiKey = import.meta.env.VITE_GEMINI_API_KEY
-          if (apiKey) {
-            const osrmContext = 'Here are the exact routing steps from the OSRM Turn-by-Turn API:\n' + rawInstructions.join('\n')
-            const prompt = `You are a friendly, kind turn-by-turn walking navigation assistant in Toronto.
+          const osrmContext = 'Here are the exact routing steps from the OSRM Turn-by-Turn API:\n' + rawInstructions.join('\n')
+          const prompt = `You are a friendly, kind turn-by-turn walking navigation assistant in Toronto.
 I am walking from coordinates (${fromLat}, ${fromLng}) to (${toLat}, ${toLng}) which is at or near "${destinationName}".
 
 ${osrmContext}
@@ -188,26 +182,25 @@ CRITICAL INSTRUCTIONS:
 4. Include helpful landmarks if possible to make the route completely unambiguous.
 5. Provide as many steps as required, ensuring the final step happily announces arrival at "${destinationName}".`
 
-            try {
-              const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: prompt }] }],
-                }),
-              })
+          try {
+            const res = await fetch(GEMINI_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+              }),
+            })
 
-              if (res.ok) {
-                const data = await res.json()
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-                const parsed = parseGeminiResponse(text) as unknown
-                if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
-                  return { instructions: parsed as string[], path: decodedPath }
-                }
+            if (res.ok) {
+              const data = await res.json()
+              const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+              const parsed = parseGeminiResponse(text) as unknown
+              if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
+                return { instructions: parsed as string[], path: decodedPath }
               }
-            } catch (err) {
-              console.warn('Gemini walking navigation failed:', err)
             }
+          } catch (err) {
+            console.warn('Gemini walking navigation failed:', err)
           }
 
           return { instructions: rawInstructions, path: decodedPath }

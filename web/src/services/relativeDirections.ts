@@ -1,7 +1,7 @@
 import type { Route } from './routing'
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
-const PLACES_URL = 'https://places.googleapis.com/v1/places:searchNearby'
+const GEMINI_URL = '/api/gemini'
+const PLACES_URL = '/api/places'
 
 interface NearbyLandmark {
   name: string
@@ -10,7 +10,7 @@ interface NearbyLandmark {
   type: string
 }
 
-async function fetchLandmarksAlongRoute(route: Route, googleMapsKey: string): Promise<NearbyLandmark[]> {
+async function fetchLandmarksAlongRoute(route: Route): Promise<NearbyLandmark[]> {
   // Collect key waypoints: walk start/end points and station locations
   const waypoints: { lat: number; lng: number }[] = []
   for (const step of route.steps) {
@@ -30,11 +30,7 @@ async function fetchLandmarksAlongRoute(route: Route, googleMapsKey: string): Pr
     try {
       const res = await fetch(PLACES_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': googleMapsKey,
-          'X-Goog-FieldMask': 'places.displayName,places.location,places.primaryType',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           includedTypes: [
             'restaurant', 'cafe', 'gas_station', 'bank', 'pharmacy',
@@ -108,16 +104,11 @@ Return ONLY the directions text, no JSON, no markdown code fences.`
 }
 
 export async function getRelativeDirections(route: Route): Promise<string> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY
-
-  if (!apiKey) return 'Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.'
-
-  // Fetch landmarks using the same API key (enable Places API on the same GCP project)
-  const landmarks = await fetchLandmarksAlongRoute(route, apiKey)
+  const landmarks = await fetchLandmarksAlongRoute(route)
 
   const prompt = buildPrompt(route, landmarks)
 
-  const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+  const res = await fetch(GEMINI_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
