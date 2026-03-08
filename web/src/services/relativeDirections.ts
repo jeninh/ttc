@@ -1,6 +1,6 @@
 import type { Route } from './routing'
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 const PLACES_URL = 'https://places.googleapis.com/v1/places:searchNearby'
 
 interface NearbyLandmark {
