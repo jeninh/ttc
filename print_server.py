@@ -586,11 +586,8 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/print', methods=['POST', 'OPTIONS'])
+@app.route('/print', methods=['POST'])
 def print_text():
-    if request.method == 'OPTIONS':
-        return '', 200
-        
     start_time = time.time()
     log.debug(f"[DEBUG] >> print_text POST start")
     log.debug(f"[DEBUG] Headers: {request.headers}")
