@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import type { Route } from '../services/routing'
 import { useAudio } from '../contexts/AudioContext'
 import { getRelativeDirections } from '../services/relativeDirections'
@@ -41,7 +42,7 @@ export default function DirectionsPanel({ route, onClose }: Props) {
     }
   }
 
-  const textDirections = `Directions from ${route.fromStation.name} to ${route.toStation.name} (${route.totalMin} min):\n\n` + 
+  const baseDirections = `Directions from ${route.fromStation.name} to ${route.toStation.name} (${route.totalMin} min):\n\n` + 
     route.steps.map((step, i) => {
       if (step.type === 'walk') {
         if (step.instructions && step.instructions.length > 0) {
@@ -64,6 +65,10 @@ export default function DirectionsPanel({ route, onClose }: Props) {
       }
       return '';
     }).join('\n')
+
+  const textDirections = showRelative && relativeText
+    ? baseDirections + '\n\n---\n\n📍 Relative Directions (Landmarks):\n\n' + relativeText
+    : baseDirections
 
   const handlePrint = async () => {
     const markdown = `# 🚇 TTC TRIP\n\n` +
@@ -89,7 +94,11 @@ export default function DirectionsPanel({ route, onClose }: Props) {
         }
         return text;
       }).join('\n\n') + 
-      `\n\n---\n# 🚂 Safe Travels!`;
+      `\n\n---\n` +
+      (showRelative && relativeText
+        ? `\n## 📍 Relative Directions\n\n${relativeText}\n\n---\n`
+        : '') +
+      `# 🚂 Safe Travels!`;
 
     try {
       const response = await fetch('http://localhost:2221/print', {
@@ -304,9 +313,7 @@ export default function DirectionsPanel({ route, onClose }: Props) {
 
       {showRelative && relativeText && (
         <div className="relative-directions-content">
-          {relativeText.split('\n').map((line: string, i: number) => (
-            <p key={i}>{line}</p>
-          ))}
+          <ReactMarkdown>{relativeText}</ReactMarkdown>
         </div>
       )}
 

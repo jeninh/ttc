@@ -45,7 +45,7 @@ export default function App() {
     if (!fromCoords || !toCoords) return
     setIsRouting(true)
     try {
-      const result = await findRoute(fromCoords[0], fromCoords[1], toCoords[0], toCoords[1], toText, useGemini)
+      const result = await findRoute(fromCoords[0], fromCoords[1], toCoords[0], toCoords[1], toText, useGemini, alertSegments)
       setRoute(result)
       setPanelOpen(true)
 
@@ -57,7 +57,7 @@ export default function App() {
     } finally {
       setIsRouting(false)
     }
-  }, [fromCoords, toCoords, toText, useGemini])
+  }, [fromCoords, toCoords, toText, useGemini, alertSegments])
 
   const handleStationClick = useCallback(
     (station: Station, role: 'from' | 'to') => {
@@ -92,7 +92,7 @@ export default function App() {
       if (startCoords) {
         setIsRouting(true)
         try {
-          const result = await findRoute(startCoords[0], startCoords[1], station.lat, station.lng, station.name + ' Station', useGemini)
+          const result = await findRoute(startCoords[0], startCoords[1], station.lat, station.lng, station.name + ' Station', useGemini, alertSegments)
           setRoute(result)
           setActiveTab('navigate')
           setPanelOpen(true)
@@ -104,7 +104,7 @@ export default function App() {
         setPanelOpen(true)
       }
     },
-    [route, userLocation, useGemini],
+    [route, userLocation, useGemini, alertSegments],
   )
 
   const handleClear = useCallback(() => {
