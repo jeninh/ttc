@@ -13,6 +13,7 @@ export interface RouteStep {
   stations?: Station[] // intermediate stations
   durationMin: number
   instructions?: string[] // Gemini turn-by-turn walking instructions
+  path?: [number, number][] // OSRM true geographic path for walks
 }
 
 export interface Route {
@@ -27,7 +28,8 @@ export async function findRoute(
   fromLng: number,
   toLat: number,
   toLng: number,
-  destinationName: string = 'Destination'
+  destinationName: string = 'Destination',
+  useGemini: boolean = false
 ): Promise<Route | null> {
   console.log(`[findRoute] Executing route finding logic from [${fromLat}, ${fromLng}] to [${toLat}, ${toLng}]`)
   // Build a unified snapshot of the graph (Subways + Streetcars)
@@ -63,7 +65,7 @@ export async function findRoute(
 
   if (fromStation.id === toStation.id) {
     console.log(`[findRoute] Returning early. It's the same station! Generating walk steps.`)
-    const walkInstr = await generateWalkingDirections(fromLat, fromLng, toLat, toLng, destinationName)
+    const walkRes = await generateWalkingDirections(fromLat, fromLng, toLat, toLng, destinationName, useGemini)
     return {
       steps: [
         {
@@ -71,7 +73,8 @@ export async function findRoute(
           from: fromStation,
           to: toStation,
           durationMin: Math.max(1, Math.round(haversine(fromLat, fromLng, toLat, toLng) / 0.08)),
-          instructions: walkInstr
+          instructions: walkRes.instructions,
+          path: walkRes.path,
         },
       ],
       totalMin: Math.max(1, Math.round(haversine(fromLat, fromLng, toLat, toLng) / 0.08)),
@@ -146,9 +149,9 @@ export async function findRoute(
   const steps: RouteStep[] = []
 
   // Generate walk instructions in parallel
-  const [firstWalk, finalWalk] = await Promise.all([
-    generateWalkingDirections(fromLat, fromLng, fromStation.lat, fromStation.lng, fromStation.name),
-    generateWalkingDirections(toStation.lat, toStation.lng, toLat, toLng, destinationName)
+  const [firstWalkRes, finalWalkRes] = await Promise.all([
+    generateWalkingDirections(fromLat, fromLng, fromStation.lat, fromStation.lng, fromStation.name, useGemini),
+    generateWalkingDirections(toStation.lat, toStation.lng, toLat, toLng, destinationName, useGemini)
   ])
 
   // Walk to first station
@@ -159,7 +162,8 @@ export async function findRoute(
     from: { id: 'origin', name: 'Your Location', lat: fromLat, lng: fromLng, lines: [] },
     to: fromStation,
     durationMin: walkMin,
-    instructions: firstWalk
+    instructions: firstWalkRes.instructions,
+    path: firstWalkRes.path
   })
 
   // Group consecutive stations on same line
@@ -216,17 +220,17 @@ export async function findRoute(
   }
 
   // Walk from last station to destination
-  const walkDistKm2 = haversine(toStation.lat, toStation.lng, toLat, toLng)
-  const walkMin2 = Math.max(1, Math.round(walkDistKm2 / 0.08))
+  const finalWalkDistKm = haversine(toStation.lat, toStation.lng, toLat, toLng)
   steps.push({
     type: 'walk',
     from: toStation,
     to: { id: 'destination', name: destinationName, lat: toLat, lng: toLng, lines: [] },
-    durationMin: walkMin2,
-    instructions: finalWalk
+    durationMin: Math.max(1, Math.round(finalWalkDistKm / 0.08)),
+    instructions: finalWalkRes.instructions,
+    path: finalWalkRes.path
   })
 
-  const totalMin = steps.reduce((s, step) => s + step.durationMin, 0)
+  const totalMin = steps.reduce((sum, s) => sum + s.durationMin, 0)
 
   return { steps, totalMin, fromStation, toStation }
 }

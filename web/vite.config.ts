@@ -16,9 +16,11 @@ export default defineConfig({
         background_color: '#1a1a2e',
         display: 'standalone',
         orientation: 'portrait',
+        start_url: '/',
+        scope: '/',
+        id: '/',
         icons: [
-          { src: '/ttc-icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/ttc-icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/ttc-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
         ],
       },
       workbox: {
@@ -53,6 +55,16 @@ export default defineConfig({
               networkTimeoutSeconds: 5,
             },
           },
+          {
+            urlPattern: /^https:\/\/photon\.komoot\.io\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'photon-geocoding',
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
+              cacheableResponse: { statuses: [0, 200] },
+              networkTimeoutSeconds: 5,
+            },
+          },
         ],
       },
     }),
@@ -63,6 +75,33 @@ export default defineConfig({
         target: 'https://alerts.ttc.ca',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/ttc-alerts/, '/api/alerts/live-alerts'),
+      },
+      '/api/gemini': {
+        target: 'https://generativelanguage.googleapis.com',
+        changeOrigin: true,
+        rewrite: () => `/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      },
+      '/api/elevenlabs': {
+        target: 'https://api.elevenlabs.io',
+        changeOrigin: true,
+        rewrite: () => '/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM',
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('xi-api-key', process.env.ELEVENLABS_API_KEY ?? '')
+            proxyReq.setHeader('Accept', 'audio/mpeg')
+          })
+        },
+      },
+      '/api/places': {
+        target: 'https://places.googleapis.com',
+        changeOrigin: true,
+        rewrite: () => '/v1/places:searchNearby',
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('X-Goog-Api-Key', process.env.GEMINI_API_KEY ?? '')
+            proxyReq.setHeader('X-Goog-FieldMask', 'places.displayName,places.location,places.primaryType')
+          })
+        },
       },
     },
   },

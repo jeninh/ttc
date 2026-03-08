@@ -71,34 +71,35 @@ export default function SearchPanel({ label, placeholder, onSelect, value, onCha
     // Instant local station matches
     const stationResults = matchStations(text)
 
-    if (text.length < 2) {
-      setResults(stationResults)
-      setShowDropdown(stationResults.length > 0)
-      return
-    }
-
-    // Show stations immediately, then fetch addresses
+    // Show stations immediately
     setResults(stationResults)
     setShowDropdown(stationResults.length > 0)
 
+    if (text.length < 2) {
+      return
+    }
+
     debounceRef.current = window.setTimeout(async () => {
       setLoading(true)
-      const geoResults = await geocode(text)
-      const addressResults: SearchResult[] = geoResults.map((r) => ({
-        geo: r,
-        label: r.displayName.split(',').slice(0, 3).join(',').trim(),
-        isStation: false,
-      }))
-      // Stations first, then addresses (deduplicated)
-      const stationLabels = new Set(stationResults.map((s) => s.label.toLowerCase()))
-      const filtered = addressResults.filter(
-        (a) => !stationLabels.has(a.label.toLowerCase()),
-      )
-      const combined = [...stationResults, ...filtered]
-      setResults(combined)
-      setShowDropdown(combined.length > 0)
-      setLoading(false)
-    }, 250)
+      try {
+        const geoResults = await geocode(text)
+        const addressResults: SearchResult[] = geoResults.map((r) => ({
+          geo: r,
+          label: r.displayName,
+          isStation: false,
+        }))
+        // Stations first, then addresses (deduplicated)
+        const stationLabels = new Set(stationResults.map((s) => s.label.toLowerCase()))
+        const filtered = addressResults.filter(
+          (a) => !stationLabels.has(a.label.toLowerCase()),
+        )
+        const combined = [...stationResults, ...filtered]
+        setResults(combined)
+        setShowDropdown(combined.length > 0)
+      } finally {
+        setLoading(false)
+      }
+    }, 350)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
