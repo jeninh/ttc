@@ -16,8 +16,11 @@ export default defineConfig({
         background_color: '#1a1a2e',
         display: 'standalone',
         orientation: 'portrait',
+        start_url: '/',
+        scope: '/',
+        id: '/',
         icons: [
-          { src: '/ttc-icon.svg', sizes: 'any', type: 'image/svg+xml' },
+          { src: '/ttc-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
         ],
       },
       workbox: {
