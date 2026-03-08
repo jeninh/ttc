@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import BottomSheet from './BottomSheet'
 import type { Route } from '../services/routing'
 import { useAudio } from '../contexts/AudioContext'
 import { getRelativeDirections } from '../services/relativeDirections'
-
 
 interface Props {
   route: Route
@@ -134,72 +134,33 @@ export default function DirectionsPanel({ route, onClose }: Props) {
         </div>
       </div>
 
-      {showText && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          zIndex: 2000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
-        }}>
-          <div style={{
-            background: 'var(--panel-bg)',
-            borderRadius: 'var(--radius)',
-            padding: '20px',
-            width: '100%',
-            maxWidth: '400px',
-            maxHeight: '80vh',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px'
-          }}>
-            <h3 style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              Text Directions
-              <button 
-                onClick={() => setShowText(false)}
-                style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}
-              >
-                ✕
-              </button>
-            </h3>
-            <textarea 
-              readOnly
-              value={textDirections}
-              style={{
-                width: '100%',
-                height: '250px',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                fontFamily: 'monospace',
-                fontSize: '13px',
-                resize: 'none',
-                color: 'var(--text)'
-              }}
-            />
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(textDirections);
-                alert('Copied to clipboard!');
-              }}
-              style={{
-                padding: '12px',
-                background: 'var(--ttc-red)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}
-            >
-              Copy to Clipboard
-            </button>
-          </div>
+      <BottomSheet
+        open={showText}
+        snaps={[0, 0.55, 0.9]}
+        defaultSnap={1}
+        onDismiss={() => setShowText(false)}
+        className="text-directions-sheet"
+      >
+        <div className="text-directions-content">
+          <h3 className="text-directions-title">
+            Text Directions
+            <button className="close-btn" onClick={() => setShowText(false)}>✕</button>
+          </h3>
+          <textarea
+            readOnly
+            value={textDirections}
+            className="text-directions-textarea"
+          />
+          <button
+            className="navigate-btn"
+            onClick={() => {
+              navigator.clipboard.writeText(textDirections)
+            }}
+          >
+            Copy to Clipboard
+          </button>
         </div>
-      )}
+      </BottomSheet>
       <div className="directions-summary">
         <span className="station-badge">{route.fromStation.name}</span>
         <span className="arrow">→</span>
