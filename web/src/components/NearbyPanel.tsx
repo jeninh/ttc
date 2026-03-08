@@ -8,6 +8,7 @@ interface Props {
   userLng: number
   emulated: boolean
   onNavigateTo: (station: Station) => void
+  inline?: boolean
 }
 
 function getNextDepartures(stationIdx: number): string[] {
@@ -27,7 +28,7 @@ function getLineInfo(lineId: string) {
   return lines.find((l) => l.id === lineId)
 }
 
-export default function NearbyPanel({ userLat, userLng, emulated, onNavigateTo }: Props) {
+export default function NearbyPanel({ userLat, userLng, emulated, onNavigateTo, inline }: Props) {
   const nearby = useMemo(
     () => findNearestStations(userLat, userLng, 6),
     [userLat, userLng],
@@ -38,7 +39,7 @@ export default function NearbyPanel({ userLat, userLng, emulated, onNavigateTo }
   const closest = nearby[0]
 
   return (
-    <div className="nearby-sidebar">
+    <div className={inline ? 'nearby-inline' : 'nearby-sidebar'}>
       {/* Header */}
       <div className="nearby-sb-header">
         <h2 className="nearby-sb-title">🚇 Nearby</h2>
