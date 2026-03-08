@@ -4,7 +4,8 @@ import { stations, stationMap, type Station } from '../data/stations'
 import { lines } from '../data/lines'
 import type { Route } from '../services/routing'
 import type { AffectedSegment, SegmentStatus } from '../services/gemini'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { fetchStreetcarRoutes, type StreetcarPath } from '../services/streetcars'
 
 interface Props {
   route: Route | null
@@ -232,6 +233,12 @@ function StatusLegend({ segments }: { segments: AffectedSegment[] }) {
 }
 
 export default function TTCMap({ route, originCoords, destCoords, userLocation, onStationClick, alertSegments = [] }: Props) {
+  const [streetcarRoutes, setStreetcarRoutes] = useState<StreetcarPath[]>([])
+
+  useEffect(() => {
+    fetchStreetcarRoutes().then(setStreetcarRoutes)
+  }, [])
+
   return (
     <MapContainer
       center={[43.6532, -79.3832]}
@@ -243,6 +250,23 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+
+      {/* Draw static streetcar routes as a background layer */}
+      {streetcarRoutes.map((scRoute) =>
+        scRoute.paths.map((pathCoords, i) => (
+          <Polyline
+            key={`sc-${scRoute.routeId}-${i}`}
+            positions={pathCoords}
+            pathOptions={{
+              color: '#DA291C', // Official TTC Red
+              weight: 3,
+              opacity: 0.65,
+            }}
+          >
+            <Popup>{scRoute.title}</Popup>
+          </Polyline>
+        ))
+      )}
 
       {/* Draw subway lines with alert coloring */}
       {lines.map((line) =>
