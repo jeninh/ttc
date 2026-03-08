@@ -54,7 +54,7 @@ function getCachedSegments(): AffectedSegment[] | null {
     if (timeStr && cached && Date.now() - Number(timeStr) < CACHE_TTL) {
       return JSON.parse(cached)
     }
-  } catch {}
+  } catch { }
   return null
 }
 
@@ -62,7 +62,7 @@ function cacheSegments(segments: AffectedSegment[]) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(segments))
     localStorage.setItem(CACHE_TIME_KEY, String(Date.now()))
-  } catch {}
+  } catch { }
 }
 
 function parseGeminiResponse(text: string): AffectedSegment[] {
@@ -70,14 +70,14 @@ function parseGeminiResponse(text: string): AffectedSegment[] {
   try {
     const parsed = JSON.parse(text)
     if (Array.isArray(parsed)) return parsed
-  } catch {}
+  } catch { }
 
   // Extract JSON array from response text
   const match = text.match(/\[[\s\S]*\]/)
   if (match) {
     try {
       return JSON.parse(match[0])
-    } catch {}
+    } catch { }
   }
 
   return []
@@ -131,7 +131,49 @@ export async function analyzeAlerts(alerts: TTCAlert[], forceRefresh = false): P
     try {
       const fallback = localStorage.getItem(CACHE_KEY)
       if (fallback) return JSON.parse(fallback)
-    } catch {}
+    } catch { }
     return []
   }
+}
+
+export async function generateWalkingDirections(
+  fromLat: number,
+  fromLng: number,
+  toLat: number,
+  toLng: number,
+  destinationName: string
+): Promise<string[]> {
+  try {
+    const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/foot/${fromLng},${fromLat};${toLng},${toLat}?steps=true`)
+    if (osrmRes.ok) {
+      const osrmData = await osrmRes.json()
+      const steps = osrmData.routes?.[0]?.legs?.[0]?.steps || []
+
+      if (steps.length > 0) {
+        const rawInstructions: string[] = []
+        for (const s of steps) {
+          const maneuverType = s.maneuver?.type || ''
+          const modifier = s.maneuver?.modifier || ''
+          const dist = s.distance ? Math.round(s.distance) : 0
+
+          if (maneuverType === 'arrive') {
+            rawInstructions.push(`Arrive at ${destinationName}`)
+          } else if (maneuverType === 'depart') {
+            rawInstructions.push(`Head ${modifier} ${s.name ? 'on ' + s.name : ''} for ${dist}m`.replace(/\s+/g, ' ').trim())
+          } else {
+            const action = maneuverType === 'turn' ? 'Turn' : maneuverType.charAt(0).toUpperCase() + maneuverType.slice(1)
+            rawInstructions.push(`${action} ${modifier} ${s.name ? 'onto ' + s.name : ''} for ${dist}m`.replace(/\s+/g, ' ').trim())
+          }
+        }
+
+        if (rawInstructions.length > 0) {
+          return rawInstructions
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('OSRM fetch failed:', err)
+  }
+
+  return [`Walk towards ${destinationName}`]
 }
