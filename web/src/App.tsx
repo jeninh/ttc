@@ -31,6 +31,7 @@ export default function App() {
   const [panelOpen, setPanelOpen] = useState(true)
   const [isRouting, setIsRouting] = useState(false)
   const [activeTab, setActiveTab] = useState<'map' | 'navigate' | 'nearby' | 'alerts'>('map')
+  const [useGemini, setUseGemini] = useState(false)
 
   const handleFromSelect = useCallback((r: GeoResult) => {
     setFromCoords([r.lat, r.lng])
@@ -44,7 +45,7 @@ export default function App() {
     if (!fromCoords || !toCoords) return
     setIsRouting(true)
     try {
-      const result = await findRoute(fromCoords[0], fromCoords[1], toCoords[0], toCoords[1], toText)
+      const result = await findRoute(fromCoords[0], fromCoords[1], toCoords[0], toCoords[1], toText, useGemini)
       setRoute(result)
       setPanelOpen(true)
 
@@ -56,7 +57,7 @@ export default function App() {
     } finally {
       setIsRouting(false)
     }
-  }, [fromCoords, toCoords, toText])
+  }, [fromCoords, toCoords, toText, useGemini])
 
   const handleStationClick = useCallback(
     (station: Station, role: 'from' | 'to') => {
@@ -91,7 +92,7 @@ export default function App() {
       if (startCoords) {
         setIsRouting(true)
         try {
-          const result = await findRoute(startCoords[0], startCoords[1], station.lat, station.lng, station.name + ' Station')
+          const result = await findRoute(startCoords[0], startCoords[1], station.lat, station.lng, station.name + ' Station', useGemini)
           setRoute(result)
           setActiveTab('navigate')
           setPanelOpen(true)
@@ -103,7 +104,7 @@ export default function App() {
         setPanelOpen(true)
       }
     },
-    [route, userLocation],
+    [route, userLocation, useGemini],
   )
 
   const handleClear = useCallback(() => {
@@ -194,6 +195,14 @@ export default function App() {
                   onChange={setToText}
                   onSelect={handleToSelect}
                 />
+                <label className="gemini-toggle">
+                  <input
+                    type="checkbox"
+                    checked={useGemini}
+                    onChange={(e) => setUseGemini(e.target.checked)}
+                  />
+                  <span>✨ AI-enhanced directions</span>
+                </label>
                 <button
                   className="navigate-btn"
                   onClick={handleNavigate}
@@ -328,6 +337,14 @@ export default function App() {
                       onChange={setToText}
                       onSelect={handleToSelect}
                     />
+                    <label className="gemini-toggle">
+                      <input
+                        type="checkbox"
+                        checked={useGemini}
+                        onChange={(e) => setUseGemini(e.target.checked)}
+                      />
+                      <span>✨ AI-enhanced directions</span>
+                    </label>
                     <button
                       className="navigate-btn"
                       onClick={handleNavigate}

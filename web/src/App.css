@@ -221,6 +221,24 @@ body,
   margin-right: 6px;
 }
 
+.gemini-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.gemini-toggle input[type="checkbox"] {
+  accent-color: var(--ttc-red);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
 .navigate-btn {
   width: 100%;
   padding: clamp(10px, 2vw, 16px);

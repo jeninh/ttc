@@ -28,7 +28,8 @@ export async function findRoute(
   fromLng: number,
   toLat: number,
   toLng: number,
-  destinationName: string = 'Destination'
+  destinationName: string = 'Destination',
+  useGemini: boolean = false
 ): Promise<Route | null> {
   console.log(`[findRoute] Executing route finding logic from [${fromLat}, ${fromLng}] to [${toLat}, ${toLng}]`)
   // Build a unified snapshot of the graph (Subways + Streetcars)
@@ -64,7 +65,7 @@ export async function findRoute(
 
   if (fromStation.id === toStation.id) {
     console.log(`[findRoute] Returning early. It's the same station! Generating walk steps.`)
-    const walkRes = await generateWalkingDirections(fromLat, fromLng, toLat, toLng, destinationName)
+    const walkRes = await generateWalkingDirections(fromLat, fromLng, toLat, toLng, destinationName, useGemini)
     return {
       steps: [
         {
@@ -149,8 +150,8 @@ export async function findRoute(
 
   // Generate walk instructions in parallel
   const [firstWalkRes, finalWalkRes] = await Promise.all([
-    generateWalkingDirections(fromLat, fromLng, fromStation.lat, fromStation.lng, fromStation.name),
-    generateWalkingDirections(toStation.lat, toStation.lng, toLat, toLng, destinationName)
+    generateWalkingDirections(fromLat, fromLng, fromStation.lat, fromStation.lng, fromStation.name, useGemini),
+    generateWalkingDirections(toStation.lat, toStation.lng, toLat, toLng, destinationName, useGemini)
   ])
 
   // Walk to first station
