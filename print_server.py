@@ -727,4 +727,4 @@ if __name__ == '__main__':
     log.info(f"  Font sizes: {FONT_SIZES}")
     log.info(f"  matplotlib: {'available' if MATPLOTLIB_AVAILABLE else 'NOT available'}")
     log.info("=" * 60)
-    app.run(host='127.0.0.1', port=2221, debug=False)
+    app.run(host='0.0.0.0', port=2221, debug=False)
