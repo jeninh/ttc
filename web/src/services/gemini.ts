@@ -139,7 +139,8 @@ export async function generateWalkingDirections(
   fromLng: number,
   toLat: number,
   toLng: number,
-  destinationName: string
+  destinationName: string,
+  useGemini: boolean = false
 ): Promise<{ instructions: string[]; path: [number, number][] }> {
   try {
     const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/foot/${fromLng},${fromLat};${toLng},${toLat}?steps=true`)
@@ -167,6 +168,10 @@ export async function generateWalkingDirections(
 
         if (rawInstructions.length > 0) {
           const decodedPath = route.geometry ? polyline.decode(route.geometry as string) as [number, number][] : []
+
+          if (!useGemini) {
+            return { instructions: rawInstructions, path: decodedPath }
+          }
           
           const osrmContext = 'Here are the exact routing steps from the OSRM Turn-by-Turn API:\n' + rawInstructions.join('\n')
           const prompt = `You are a friendly, kind turn-by-turn walking navigation assistant in Toronto.
