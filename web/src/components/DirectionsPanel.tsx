@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Route } from '../services/routing'
+import { getRelativeDirections } from '../services/relativeDirections'
 
 interface Props {
   route: Route
@@ -209,6 +210,37 @@ export default function DirectionsPanel({ route, onClose }: Props) {
           </li>
         ))}
       </ul>
+
+      {/* Relative Directions button */}
+      <button
+        className="relative-directions-btn"
+        onClick={handleRelativeDirections}
+        disabled={relativeLoading}
+      >
+        {relativeLoading ? (
+          <>
+            <span className="relative-spinner" />
+            Generating landmark directions…
+          </>
+        ) : showRelative ? (
+          '📍 Hide Relative Directions'
+        ) : (
+          '📍 Relative Directions'
+        )}
+      </button>
+
+      {relativeError && (
+        <p className="relative-error">⚠️ {relativeError}</p>
+      )}
+
+      {showRelative && relativeText && (
+        <div className="relative-directions-content">
+          {relativeText.split('\n').map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
+      )}
+
       <p className="directions-note">
         ℹ️ Route cached for offline use underground
       </p>
