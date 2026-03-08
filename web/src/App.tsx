@@ -131,8 +131,8 @@ export default function App() {
 
   return (
     <div className={`app ${isMobile ? 'app-mobile' : ''}`}>
-      {/* Offline banner */}
-      {!online && (
+      {/* Offline banner — hidden on mobile map view to keep it clean */}
+      {!online && !(isMobile && activeTab === 'map') && (
         <div className="offline-banner">
           📡 Offline Mode — Using cached data
           {!route && (
@@ -143,11 +143,11 @@ export default function App() {
         </div>
       )}
 
-      <VoiceoverToggle shiftRight={!!userLocation && !route} />
+      {!isMobile && <VoiceoverToggle shiftRight={!!userLocation && !route} />}
 
       {/* Location loading indicator */}
       {(locLoading || isRouting) && (
-        <div className="loc-loading">
+        <div className={`loc-loading ${isMobile ? 'loc-loading-mobile' : ''}`}>
           <span className="loc-loading-spinner" />
           {isRouting ? 'Generating route & walking directions...' : 'Getting your location…'}
         </div>

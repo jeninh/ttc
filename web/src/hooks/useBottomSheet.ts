@@ -67,7 +67,8 @@ export function useBottomSheet(opts: Options): BottomSheetHandle {
     if (typeof window === 'undefined') return 600
     const tabBar = document.querySelector('.mobile-tab-bar') as HTMLElement | null
     const tabBarH = tabBar ? tabBar.offsetHeight : 56
-    return window.innerHeight - tabBarH
+    const vh = window.visualViewport?.height ?? window.innerHeight
+    return vh - tabBarH
   }, [])
 
   const snapToTranslateY = useCallback(
@@ -224,13 +225,24 @@ export function useBottomSheet(opts: Options): BottomSheetHandle {
     [beginDrag],
   )
 
-  // Re-snap on window resize
+  // Re-snap on any viewport change (resize, orientation, virtual keyboard)
   useEffect(() => {
     const onResize = () => {
       setTranslateY(snapToTranslateY(snapsRef.current[snapIndex]))
     }
     window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+
+    const vv = window.visualViewport
+    if (vv) {
+      vv.addEventListener('resize', onResize)
+    }
+
+    return () => {
+      window.removeEventListener('resize', onResize)
+      if (vv) {
+        vv.removeEventListener('resize', onResize)
+      }
+    }
   }, [snapIndex, snapToTranslateY, setTranslateY])
 
   const style: React.CSSProperties = {

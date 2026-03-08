@@ -42,6 +42,32 @@ function MapController({ route, userLocation }: { route: Route | null; userLocat
     }
   }, [route, map])
 
+  // Continuously invalidate map size on any resize / orientation change
+  useEffect(() => {
+    const container = map.getContainer()
+
+    const invalidate = () => map.invalidateSize({ animate: false })
+
+    // ResizeObserver for constant updates when container size changes
+    const ro = new ResizeObserver(invalidate)
+    ro.observe(container)
+
+    // Also listen to visualViewport changes (keyboard, pinch zoom on mobile)
+    const vv = window.visualViewport
+    if (vv) {
+      vv.addEventListener('resize', invalidate)
+      vv.addEventListener('scroll', invalidate)
+    }
+
+    return () => {
+      ro.disconnect()
+      if (vv) {
+        vv.removeEventListener('resize', invalidate)
+        vv.removeEventListener('scroll', invalidate)
+      }
+    }
+  }, [map])
+
   return null
 }
 
