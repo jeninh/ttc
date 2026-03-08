@@ -363,6 +363,69 @@ html, body, #root {
   border-radius: 6px;
 }
 
+/* Relative Directions */
+.relative-directions-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.relative-directions-btn:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.relative-directions-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.relative-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.relative-directions-content {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #f0f7ff;
+  border-radius: 8px;
+  border-left: 3px solid #4285F4;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.relative-directions-content p {
+  margin-bottom: 4px;
+}
+
+.relative-directions-content p:empty {
+  display: none;
+}
+
+.relative-error {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #d32f2f;
+  text-align: center;
+}
+
 /* ── Location loading ── */
 .loc-loading {
   position: absolute;
