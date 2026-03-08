@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { analyzeAlerts, type AffectedSegment } from '../services/gemini'
 import type { TTCAlert } from '../services/alerts'
 
@@ -15,6 +15,7 @@ export function useGeminiAlerts(alerts: TTCAlert[]) {
     }
   })
   const [loading, setLoading] = useState(true)
+  const initialRun = useRef(true)
 
   const refresh = useCallback(async () => {
     if (alerts.length === 0) {
@@ -22,7 +23,9 @@ export function useGeminiAlerts(alerts: TTCAlert[]) {
       return
     }
     try {
-      const data = await analyzeAlerts(alerts)
+      const force = initialRun.current
+      initialRun.current = false
+      const data = await analyzeAlerts(alerts, force)
       setSegments(data)
     } catch {
       // use cached

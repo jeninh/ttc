@@ -11,6 +11,8 @@ export interface AffectedSegment {
   alertTitle: string
 }
 
+import polyline from '@mapbox/polyline'
+
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
 const CACHE_KEY = 'ttc-gemini-segments'
 const CACHE_TIME_KEY = 'ttc-gemini-time'
@@ -83,17 +85,25 @@ function parseGeminiResponse(text: string): AffectedSegment[] {
   return []
 }
 
-export async function analyzeAlerts(alerts: TTCAlert[]): Promise<AffectedSegment[]> {
+export async function analyzeAlerts(alerts: TTCAlert[], forceRefresh = false): Promise<AffectedSegment[]> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+  console.log('[Gemini] API key present:', !!apiKey)
   if (!apiKey) return []
 
   const subwayAlerts = alerts.filter((a) => a.routeType === 'subway')
+  console.log('[Gemini] Subway alerts found:', subwayAlerts.length, subwayAlerts.map((a) => a.title))
   if (subwayAlerts.length === 0) return []
 
-  // Check cache first
-  const cached = getCachedSegments()
-  if (cached) return cached
+  // Check cache first (skip if forced)
+  if (!forceRefresh) {
+    const cached = getCachedSegments()
+    if (cached) {
+      console.log('[Gemini] Using cached segments:', cached.length)
+      return cached
+    }
+  }
 
+  console.log('[Gemini] Calling Gemini API...')
   try {
     const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
       method: 'POST',
@@ -103,11 +113,17 @@ export async function analyzeAlerts(alerts: TTCAlert[]): Promise<AffectedSegment
       }),
     })
 
-    if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
+    if (!res.ok) {
+      const errBody = await res.text()
+      console.error('[Gemini] API error:', res.status, errBody)
+      throw new Error(`Gemini API error: ${res.status}`)
+    }
 
     const data = await res.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    console.log('[Gemini] Raw response:', text)
     const segments = parseGeminiResponse(text)
+    console.log('[Gemini] Parsed segments:', segments.length, segments)
 
     cacheSegments(segments)
     return segments
@@ -128,12 +144,13 @@ export async function generateWalkingDirections(
   toLat: number,
   toLng: number,
   destinationName: string
-): Promise<string[]> {
+): Promise<{ instructions: string[]; path: [number, number][] }> {
   try {
     const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/foot/${fromLng},${fromLat};${toLng},${toLat}?steps=true`)
     if (osrmRes.ok) {
       const osrmData = await osrmRes.json()
-      const steps = osrmData.routes?.[0]?.legs?.[0]?.steps || []
+      const route = osrmData.routes?.[0]
+      const steps = route?.legs?.[0]?.steps || []
 
       if (steps.length > 0) {
         const rawInstructions: string[] = []
@@ -153,7 +170,47 @@ export async function generateWalkingDirections(
         }
 
         if (rawInstructions.length > 0) {
-          return rawInstructions
+          const decodedPath = route.geometry ? polyline.decode(route.geometry as string) as [number, number][] : []
+          
+          const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+          if (apiKey) {
+            const osrmContext = 'Here are the exact routing steps from the OSRM Turn-by-Turn API:\n' + rawInstructions.join('\n')
+            const prompt = `You are a friendly, kind turn-by-turn walking navigation assistant in Toronto.
+I am walking from coordinates (${fromLat}, ${fromLng}) to (${toLat}, ${toLng}) which is at or near "${destinationName}".
+
+${osrmContext}
+Translate these raw technical routing steps into meticulously detailed, correct plaintext instructions.
+
+CRITICAL INSTRUCTIONS:
+1. You must output ONLY a raw JSON array of strings. NO markdown blocks (e.g. \`\`\`json), NO conversational filler, JUST the array.
+2. Each string should be a highly detailed, human-readable instruction. Include specific left/right turns, street names, and approximate distances.
+3. Adopt a soft, kind, human tone (e.g., "Take a gentle left onto...", "You'll see the CN Tower ahead, keep right...").
+4. Include helpful landmarks if possible to make the route completely unambiguous.
+5. Provide as many steps as required, ensuring the final step happily announces arrival at "${destinationName}".`
+
+            try {
+              const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ parts: [{ text: prompt }] }],
+                }),
+              })
+
+              if (res.ok) {
+                const data = await res.json()
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+                const parsed = parseGeminiResponse(text) as unknown
+                if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
+                  return { instructions: parsed as string[], path: decodedPath }
+                }
+              }
+            } catch (err) {
+              console.warn('Gemini walking navigation failed:', err)
+            }
+          }
+
+          return { instructions: rawInstructions, path: decodedPath }
         }
       }
     }
@@ -161,5 +218,5 @@ export async function generateWalkingDirections(
     console.warn('OSRM fetch failed:', err)
   }
 
-  return [`Walk towards ${destinationName}`]
+  return { instructions: [`Walk towards ${destinationName}`], path: [] }
 }

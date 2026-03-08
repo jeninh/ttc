@@ -32,6 +32,7 @@ function MapController({ route, userLocation }: { route: Route | null; userLocat
   useEffect(() => {
     if (!route) return
     const allCoords: [number, number][] = route.steps.flatMap((s) => {
+      if (s.type === 'walk' && s.path && s.path.length > 0) return s.path
       const pts: [number, number][] = [[s.from.lat, s.from.lng], [s.to.lat, s.to.lng]]
       if (s.stations) pts.push(...s.stations.map((st) => [st.lat, st.lng] as [number, number]))
       return pts
@@ -296,15 +297,31 @@ export default function TTCMap({ route, originCoords, destCoords, userLocation, 
 
       {/* Route overlay */}
       {route &&
-        route.steps
-          .filter((s) => s.type === 'ride' && s.stations)
-          .map((step, i) => (
-            <Polyline
-              key={`route-${i}`}
-              positions={step.stations!.map((s) => [s.lat, s.lng] as [number, number])}
-              pathOptions={{ color: step.lineColor ?? '#DA291C', weight: 8, opacity: 1 }}
-            />
-          ))}
+        route.steps.map((step, i) => {
+          if (step.type === 'ride' && step.stations) {
+            return (
+              <Polyline
+                key={`route-ride-${i}`}
+                positions={step.stations.map((s) => [s.lat, s.lng] as [number, number])}
+                pathOptions={{ color: step.lineColor ?? '#DA291C', weight: 8, opacity: 1 }}
+              />
+            )
+          }
+          if (step.type === 'walk') {
+            const walkPositions = step.path && step.path.length > 0 
+              ? step.path 
+              : [[step.from.lat, step.from.lng], [step.to.lat, step.to.lng]] as [number, number][];
+              
+            return (
+              <Polyline
+                key={`route-walk-${i}`}
+                positions={walkPositions}
+                pathOptions={{ color: '#2196F3', weight: 6, opacity: 0.9, dashArray: '6, 8' }}
+              />
+            )
+          }
+          return null
+        })}
 
       {/* Origin & destination markers */}
       {originCoords && (

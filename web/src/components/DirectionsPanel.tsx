@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Route } from '../services/routing'
+import { useAudio } from '../contexts/AudioContext'
 
 interface Props {
   route: Route
@@ -14,6 +15,7 @@ const icons: Record<string, string> = {
 
 export default function DirectionsPanel({ route, onClose }: Props) {
   const [showText, setShowText] = useState(false)
+  const { playText, stopAudio, isPlaying, isLoading } = useAudio()
 
   const textDirections = `Directions from ${route.fromStation.name} to ${route.toStation.name} (${route.totalMin} min):\n\n` + 
     route.steps.map((step, i) => {
@@ -28,16 +30,67 @@ export default function DirectionsPanel({ route, onClose }: Props) {
         return `${i + 1}. Walk to ${step.to.name} (${step.durationMin} min)`;
       }
       if (step.type === 'ride') return `${i + 1}. Ride ${step.lineName} from ${step.from.name} to ${step.to.name} (${step.durationMin} min, ${step.stations?.length ?? 0} stops)`;
-      if (step.type === 'transfer') return `${i + 1}. Transfer at ${step.from.name} (${step.durationMin} min)`;
+      if (step.type === 'transfer') {
+        const prevRide = route.steps[i - 1]?.lineName;
+        const nextRide = route.steps[i + 1]?.lineName;
+        if (prevRide && nextRide) {
+          return `${i + 1}. Transfer from ${prevRide} to ${nextRide} at ${step.from.name} (${step.durationMin} min)`;
+        }
+        return `${i + 1}. Transfer at ${step.from.name} (${step.durationMin} min)`;
+      }
       return '';
     }).join('\n')
 
   return (
     <div className="directions-panel">
       <div className="directions-header">
-        <h3>
-          🚇 {route.totalMin} min total
-        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <h3 style={{ margin: 0 }}>
+            🚇 {route.totalMin} min total
+          </h3>
+          <button
+            title="Listen to Directions"
+            onClick={() => {
+              if (isPlaying || isLoading) {
+                stopAudio()
+              } else {
+                const script = `Your route from ${route.fromStation.name} to ${route.toStation.name} takes ${route.totalMin} minutes. ` + 
+                  route.steps.map((step, i) => {
+                    if (step.type === 'walk') {
+                      return `Step ${i + 1}. ${step.instructions && step.instructions.length > 0 ? step.instructions[0] : `Walk to ${step.to.name.replace(' Station', '')}`}.`
+                    }
+                    if (step.type === 'ride') return `Step ${i + 1}. Ride ${step.lineName} from ${step.from.name.replace(' Station', '')} to ${step.to.name.replace(' Station', '')}.`
+                    if (step.type === 'transfer') {
+                      const prevRide = route.steps[i - 1]?.lineName
+                      const nextRide = route.steps[i + 1]?.lineName
+                      if (prevRide && nextRide) {
+                        return `Step ${i + 1}. Transfer from ${prevRide} to ${nextRide} at ${step.from.name.replace(' Station', '')}.`
+                      }
+                      return `Step ${i + 1}. Transfer at ${step.from.name.replace(' Station', '')}.`
+                    }
+                    return ''
+                  }).join(' ') + ' You have arrived at your destination.'
+                playText(script)
+              }
+            }}
+            style={{
+              padding: '6px 10px',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              background: isPlaying || isLoading ? 'var(--ttc-red)' : 'transparent',
+              color: isPlaying || isLoading ? 'white' : 'var(--text)',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s',
+            }}
+          >
+            {isLoading ? '⏳ Loading...' : isPlaying ? '⏹ Stop' : '🔊 Read'}
+          </button>
+        </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button 
             onClick={() => setShowText(true)}
@@ -186,10 +239,17 @@ export default function DirectionsPanel({ route, onClose }: Props) {
                 </>
               )}
               {step.type === 'transfer' && (
-                <span>
-                  Transfer at <strong>{step.from.name}</strong>{' '}
-                  <span className="step-time">{step.durationMin} min</span>
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span>
+                    Transfer at <strong>{step.from.name}</strong>{' '}
+                    <span className="step-time">{step.durationMin} min</span>
+                  </span>
+                  {route.steps[i - 1]?.lineName && route.steps[i + 1]?.lineName && (
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      From <strong>{route.steps[i - 1].lineName}</strong> to <strong>{route.steps[i + 1].lineName}</strong>
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </li>

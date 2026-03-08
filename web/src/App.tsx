@@ -11,6 +11,7 @@ import { useLocation } from './hooks/useLocation'
 import { findRoute, type Route } from './services/routing'
 import type { GeoResult } from './services/geocoding'
 import type { Station } from './data/stations'
+import VoiceoverToggle from './components/VoiceoverToggle'
 import './App.css'
 
 export default function App() {
@@ -134,6 +135,7 @@ export default function App() {
         </div>
       )}
 
+      <VoiceoverToggle />
       {/* Map */}
       <div className="map-container">
         <TTCMap
