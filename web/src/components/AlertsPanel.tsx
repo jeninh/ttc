@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { TTCAlert } from '../services/alerts'
+import { useAudio } from '../contexts/AudioContext'
 
 interface Props {
   alerts: TTCAlert[]
@@ -23,15 +24,40 @@ const severityColor: Record<string, string> = {
 export default function AlertsPanel({ alerts, loading }: Props) {
   const [collapsed, setCollapsed] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const { playText, stopAudio, isPlaying, isLoading } = useAudio()
 
   if (loading || alerts.length === 0) return null
 
   return (
     <div className={`alerts-panel ${collapsed ? 'alerts-panel-collapsed' : ''}`}>
       <div className="alerts-panel-header" onClick={() => setCollapsed(!collapsed)}>
-        <span className="alerts-panel-title">
+        <span className="alerts-panel-title" style={{ display: 'flex', alignItems: 'center' }}>
           ⚠️ Service Alerts
           <span className="alerts-panel-count">{alerts.length}</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              if (isPlaying || isLoading) {
+                stopAudio()
+              } else {
+                const script = `There are ${alerts.length} active service alerts. ` + 
+                  alerts.map((a, i) => `Alert ${i + 1}: ${a.title}. ${a.description ? a.description : ''}`).join(' ')
+                playText(script)
+              }
+            }}
+            style={{
+              marginLeft: '12px',
+              padding: '2px 8px',
+              background: isPlaying || isLoading ? 'white' : 'transparent',
+              color: isPlaying || isLoading ? 'var(--ttc-red)' : 'inherit',
+              border: '1px solid currentColor',
+              borderRadius: '4px',
+              fontSize: '11px',
+              cursor: 'pointer'
+            }}
+          >
+            {isLoading ? '⏳' : isPlaying ? '⏹' : '🔊 Read'}
+          </button>
         </span>
         <span className="alerts-panel-toggle">{collapsed ? '▲' : '▼'}</span>
       </div>
