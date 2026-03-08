@@ -135,7 +135,7 @@ export default function App() {
         </div>
       )}
 
-      <VoiceoverToggle />
+      <VoiceoverToggle shiftRight={!!userLocation && !route} />
       {/* Map */}
       <div className="map-container">
         <TTCMap

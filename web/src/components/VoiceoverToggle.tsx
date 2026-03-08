@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAudio } from '../contexts/AudioContext'
 
-export default function VoiceoverToggle() {
+export default function VoiceoverToggle({ shiftRight }: { shiftRight?: boolean }) {
   const [enabled, setEnabled] = useState(false)
   const { playText, stopAudio } = useAudio()
   const timeoutRef = useRef<number>(0)
@@ -88,7 +88,7 @@ export default function VoiceoverToggle() {
       style={{
         position: 'fixed',
         top: '20px',
-        left: '20px',
+        left: shiftRight ? '340px' : '20px',
         zIndex: 9999,
         padding: '10px 15px',
         borderRadius: '30px',
@@ -101,7 +101,7 @@ export default function VoiceoverToggle() {
         alignItems: 'center',
         gap: '8px',
         fontWeight: 'bold',
-        transition: 'all 0.2s ease'
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
     >
       <span style={{ fontSize: '1.2rem' }}>{enabled ? '🔊' : '🔇'}</span>
