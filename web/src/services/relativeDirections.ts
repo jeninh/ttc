@@ -93,17 +93,17 @@ Here are real landmarks/businesses near the walking portions of the route:
 ${JSON.stringify(landmarks, null, 2)}
 
 Generate natural, human-friendly directions using these landmarks as reference points. For walking portions:
-- Use phrases like "Walk about X blocks north until you see the [Landmark Name]"
+- Use phrases like "Walk about x blocks to the right until you see the [Landmark Name]"
 - Reference real landmarks like "You'll pass [Business Name] on your left"  
 - Use street-level cues like "Turn left at the [Landmark Name] on the corner"
-- Mention which direction to head (north, south, east, west)
+- Use left/right direction over absolute direction whenever possible
 
 For transit portions:
 - Say which line to take and which direction
 - Mention how many stops
 - Say what to look for when getting off
 
-Keep it concise but natural — like a friend giving directions. Use bullet points.
+Keep it concise but natural — like a friend giving directions, BUT don't be too nice. Use bullet points.
 Return ONLY the directions text, no JSON, no markdown code fences.`
 }
 

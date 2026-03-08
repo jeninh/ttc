@@ -8,13 +8,9 @@ export async function geocode(query: string): Promise<GeoResult[]> {
   try {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', Toronto, ON')}&format=json&limit=5&viewbox=-79.65,43.86,-79.10,43.58&bounded=1&email=ttc-navigator-local@example.com`
 
-<<<<<<< HEAD
     const res = await fetch(url)
     if (!res.ok) return []
-=======
-  const res = await fetch(url)
-  if (!res.ok) return []
->>>>>>> main
+
 
     const data = await res.json()
     return data.map((item: any) => ({

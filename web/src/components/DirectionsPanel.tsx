@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import type { Route } from '../services/routing'
-<<<<<<< HEAD
 import { useAudio } from '../contexts/AudioContext'
-=======
 import { getRelativeDirections } from '../services/relativeDirections'
->>>>>>> main
+
 
 interface Props {
   route: Route
@@ -19,32 +17,7 @@ const icons: Record<string, string> = {
 
 export default function DirectionsPanel({ route, onClose }: Props) {
   const [showText, setShowText] = useState(false)
-<<<<<<< HEAD
   const { playText, stopAudio, isPlaying, isLoading } = useAudio()
-=======
-  const [showRelative, setShowRelative] = useState(false)
-  const [relativeText, setRelativeText] = useState<string | null>(null)
-  const [relativeLoading, setRelativeLoading] = useState(false)
-  const [relativeError, setRelativeError] = useState<string | null>(null)
-
-  async function handleRelativeDirections() {
-    if (showRelative) {
-      setShowRelative(false)
-      return
-    }
-    setRelativeLoading(true)
-    setRelativeError(null)
-    try {
-      const text = await getRelativeDirections(route)
-      setRelativeText(text)
-      setShowRelative(true)
-    } catch (err: any) {
-      setRelativeError(err.message ?? 'Failed to generate directions')
-    } finally {
-      setRelativeLoading(false)
-    }
-  }
->>>>>>> main
 
   const textDirections = `Directions from ${route.fromStation.name} to ${route.toStation.name} (${route.totalMin} min):\n\n` + 
     route.steps.map((step, i) => {
